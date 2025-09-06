@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 General feedback or non-template topics
+    url: https://github.com/atsushifx/.github/issues/new
+    about: For open-ended thoughts, personal feedback, or things that don’t fit existing templates.

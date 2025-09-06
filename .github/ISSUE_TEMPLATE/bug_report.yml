@@ -1,0 +1,49 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve the project.
+title: "[Bug]"
+labels: ["bug"]
+assignees: ["atsushifx"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+        Please fill out the form below as clearly and completely as possible 🙏
+
+  - type: textarea
+    attributes:
+      label: 🐛 What happened?
+      description: Describe the unexpected behavior or error.
+      placeholder: "When I run `pnpm lint`, I get an error..."
+
+  - type: textarea
+    attributes:
+      label: 🔁 Steps to reproduce
+      description: Provide step-by-step instructions.
+      placeholder: |
+        1. Run `pnpm lint`
+        2. See error message
+
+  - type: input
+    attributes:
+      label: 💻 Environment
+      description: OS, Node.js, browser info, etc.
+      placeholder: "Windows 11 / Node.js v18.17 / pnpm 8.9"
+
+  - type: textarea
+    attributes:
+      label: 📸 Screenshots or logs (optional)
+      description: Paste relevant output or attach screenshots if available.
+
+  - type: textarea
+    attributes:
+      label: 💬 Additional context
+      description: Anything else we should know?
+      placeholder: "This issue may be related to the recent update to..."
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🤖 This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.

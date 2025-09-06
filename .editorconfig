@@ -1,0 +1,108 @@
+## @(#) : editorconfig common template for atsushifx
+##
+## EditorConfig is awesome: https://EditorConfig.org
+#
+# @version  1.2.1
+# @date     2025-04-25
+# @author   atsushifx <https://github.com/atsushifx/>
+# @license  MIT
+#
+# @description<<
+#
+# Common editor settings for general programming and documentation files.
+# Applies consistent indentation and line-ending rules.
+#
+#<<
+
+root = true
+
+# ─────────────────────────────
+# Base Settings
+# ─────────────────────────────
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# Documents
+# ─────────────────────────────
+[*.md]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# JSON
+# ─────────────────────────────
+[*.json]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# YAML
+# ─────────────────────────────
+[*.yaml]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+[*.yml]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# INI / TOML
+# ─────────────────────────────
+[*.ini]
+indent_style = tab
+tab_width = 4
+
+[*.toml]
+indent_style = tab
+tab_width = 4
+
+# ─────────────────────────────
+# rc Files
+# ─────────────────────────────
+[*rc]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# ─────────────────────────────
+# Shell Scripts
+# ─────────────────────────────
+[*.{sh,bash,zsh}]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+# PowerShell
+[*.ps1]
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+# ─────────────────────────────
+# Git Config Files
+# ─────────────────────────────
+[*.git*]
+indent_style = tab
+tab_width = 4
+
+[**/git/*]
+indent_style = tab
+tab_width = 4
+
+# ─────────────────────────────
+# Special Files (e.g. Dockerfile, LICENSE)
+# ─────────────────────────────
+# [Dockerfile]
+# indent_style = space
+# indent_size = 2

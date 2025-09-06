@@ -1,0 +1,40 @@
+name: ✨ Feature Request
+description: Suggest a new idea or improvement.
+title: "[Feature]"
+labels: ["enhancement"]
+assignees: ["atsushifx"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your idea! Please describe it as clearly and specifically as possible 🙏
+
+  - type: textarea
+    attributes:
+      label: 💡 What's the problem you’re solving?
+      description: Describe the background or problem that led to this request.
+      placeholder: "I am always frustrated when I need to..."
+
+  - type: textarea
+    attributes:
+      label: ✨ Proposed solution
+      description: Describe the feature or change you'd like to see.
+      placeholder: "I would like to have a command like `pnpm check-style`..."
+
+  - type: textarea
+    attributes:
+      label: 🔀 Alternatives considered
+      description: Other options or approaches you've considered.
+      placeholder: "Using ESLint custom rules, or a Vale workaround..."
+
+  - type: textarea
+    attributes:
+      label: 📎 Additional context
+      description: Links, screenshots, design notes, or other supporting info.
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🤖 This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.

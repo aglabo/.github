@@ -1,0 +1,71 @@
+## @(#) : gitignore for textlint filter (skip-frontmatter)
+#
+# @version  1.0.1
+# @author   atsushifx <atsushifx@gmail.com>
+# @since    2025-04-25
+#
+# @description<<
+#
+# Git ignore rules for development template
+# Includes OS-specific files, VSCode configs, general development artifacts.
+#
+#<<
+
+# ─────────────────────────────
+# General
+# ─────────────────────────────
+
+# OS-specific
+.DS_Store
+thumbs.db
+
+# Logs / patches
+*.log
+*.diff
+*.patch
+
+# env
+.env
+.env.key*
+.env.*
+
+# History
+.history/
+
+# cache
+.cache/
+**/cache/
+**cache
+
+# Backup / swap / temp files
+*~
+~*
+$~*
+*.swp
+*.tmp
+*.lock
+
+# ─────────────────────────────
+# Editor: VSCode
+# ─────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+!.vscode/cspell*
+
+# vale
+# Vale downloaded styles
+.vale/styles/*
+!.vale/styles/myStyle/*
+!.vale/styles/config/*
+!.vale/styles/config/vocabularies/*
+!.vale/styles/config/vocabularies/myStyle/*
+
+
+# ─────────────────────────────
+# Node.js
+# ─────────────────────────────
+node_modules/
