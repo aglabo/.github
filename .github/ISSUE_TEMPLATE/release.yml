@@ -1,0 +1,72 @@
+name: Release
+description: Plan and track a release across packages (core & aggregators)
+title: "[Release] vX.Y.Z: "
+labels:
+  - release
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: "## Release basic info"
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Semantic version (ex. v1.2.3)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: release_type
+    attributes:
+      label: Release type
+      options:
+        - pre-release
+        - stable
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "## What's the problem you’re solving?"
+  - type: textarea
+    id: problem
+    attributes:
+      label: Details
+    validations:
+      required: true
+
+  # 提案する解決策
+  - type: markdown
+    attributes:
+      value: "## Proposed solution"
+  - type: textarea
+    id: solution
+    attributes:
+      label: Plan
+    validations:
+      required: true
+
+  # 代替案
+  - type: markdown
+    attributes:
+      value: "## Alternatives considered"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Options
+    validations:
+      required: false
+
+  # 追加情報
+  - type: markdown
+    attributes:
+      value: "## Additional context"
+  - type: textarea
+    id: context
+    attributes:
+      label: Notes / Links
+    validations:
+      required: false
