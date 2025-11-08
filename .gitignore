@@ -1,53 +1,57 @@
-## @(#) : gitignore for textlint filter (skip-frontmatter)
+# src: .gitignore
+# @(#) : typescript compile settings
 #
-# @version  1.0.1
-# @author   atsushifx <atsushifx@gmail.com>
-# @since    2025-04-25
+# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
 #
-# @description<<
-#
-# Git ignore rules for development template
-# Includes OS-specific files, VSCode configs, general development artifacts.
-#
-#<<
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
 
-# ─────────────────────────────
-# General
-# ─────────────────────────────
 
-# OS-specific
+##		General
+#	OS specific files
 .DS_Store
 thumbs.db
 
-# Logs / patches
+#	logs, patches
 *.log
 *.diff
 *.patch
 
-# env
-.env
-.env.key*
+# 	history, cache
+.history/
+.cache/
+**/*cache
+
+
+#	backup/swap/temp
+$~*
+~*
+*~
+*tmp
+*swp
+*lock
+
+#	.env files
+.env*
 .env.*
 
-# History
-.history/
+## AI generated files
 
-# cache
-.cache/
-**/cache/
-**cache
+## Coding AI depended
+# CLAUDE.md
+.claude/*
 
-# Backup / swap / temp files
-*~
-~*
-$~*
-*.swp
-*.tmp
-*.lock
+# MCP server dependency files
+.serena/
+.lsmcp/
 
-# ─────────────────────────────
-# Editor: VSCode
-# ─────────────────────────────
+## Temporary Directory
+temp/
+tmp/
+
+
+##		Editor
+#	VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -56,16 +60,3 @@ $~*
 !.vscode/*.code-snippets
 !.vscode/cspell*
 
-# vale
-# Vale downloaded styles
-.vale/styles/*
-!.vale/styles/myStyle/*
-!.vale/styles/config/*
-!.vale/styles/config/vocabularies/*
-!.vale/styles/config/vocabularies/myStyle/*
-
-
-# ─────────────────────────────
-# Node.js
-# ─────────────────────────────
-node_modules/
