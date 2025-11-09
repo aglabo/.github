@@ -1,18 +1,10 @@
-## @(#) : editorconfig common template for atsushifx
-##
-## EditorConfig is awesome: https://EditorConfig.org
+# src: shared/configs/secretlint.config.base.yaml
+# @(#) : secretlint base configuration
 #
-# @version  1.2.1
-# @date     2025-04-25
-# @author   atsushifx <https://github.com/atsushifx/>
-# @license  MIT
+# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
 #
-# @description<<
-#
-# Common editor settings for general programming and documentation files.
-# Applies consistent indentation and line-ending rules.
-#
-#<<
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
 
 root = true
 
@@ -46,12 +38,7 @@ tab_width = 2
 # ─────────────────────────────
 # YAML
 # ─────────────────────────────
-[*.yaml]
-indent_style = space
-indent_size = 2
-tab_width = 2
-
-[*.yml]
+[*.{yaml,yml}]
 indent_style = space
 indent_size = 2
 tab_width = 2
