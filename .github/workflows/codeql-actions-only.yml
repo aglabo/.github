@@ -21,6 +21,7 @@ jobs:
   analyze:
     name: Analyze GitHub Actions
     runs-on: ubuntu-slim
+    timeout-minutes: 30
     permissions:
       # required for all workflows
       security-events: write
@@ -41,11 +42,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+        with:
+          persist-credentials: false
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@2152c31696c8409983789c80ab57c4d91465a2fc # v4
         with:
           languages: "actions"
           build-mode: ${{ matrix.build-mode }}
@@ -62,6 +65,6 @@ jobs:
           exit 1
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@2152c31696c8409983789c80ab57c4d91465a2fc # v4
         with:
           category: "/language:actions"
