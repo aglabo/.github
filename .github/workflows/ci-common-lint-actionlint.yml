@@ -1,0 +1,121 @@
+# src: ./.github/workflows/ci-common-lint-actionlint.yml
+# @(#) : GitHub Actions workflow for actionlint validation
+#
+# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: Common CI Actionlint
+
+# Minimal permissions following security best practices
+permissions:
+  contents: read
+
+# Reusable workflow trigger
+on:
+  workflow_call:
+    inputs:
+      config-file:
+        type: string
+        default: ".shared/configs/actionlint.yaml"
+        description: "Path to actionlint config file"
+        required: false
+      actionlint-version:
+        type: string
+        default: "1.7.8"
+        description: "actionlint version to install"
+        required: false
+
+jobs:
+  actionlint:
+    name: Lint GitHub Actions workflows
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+
+      # Step 2: Checkout shared configs from atsushifx/.github
+      - name: Checkout shared configs
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: aglabo/.github
+          ref: releases
+          path: .shared
+          persist-credentials: false
+
+      # Step 3: Setup actionlint binary with checksum verification
+      - name: Setup actionlint
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ inputs.actionlint-version }}"
+          DOWNLOAD_URL="https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_linux_amd64.tar.gz"
+          CHECKSUM_URL="https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_checksums.txt"
+
+          # Download actionlint tarball and checksums
+          echo "::group::Downloading actionlint v${VERSION}"
+          curl -sSL -o /tmp/actionlint.tar.gz "${DOWNLOAD_URL}"
+          curl -sSL -o /tmp/checksums.txt "${CHECKSUM_URL}"
+          echo "::endgroup::"
+
+          # Extract expected checksum for Linux AMD64
+          EXPECTED_CHECKSUM=$(grep -w "actionlint_${VERSION}_linux_amd64.tar.gz" /tmp/checksums.txt | awk '{print $1}' | head -1)
+
+          # Calculate actual checksum
+          ACTUAL_CHECKSUM=$(sha256sum /tmp/actionlint.tar.gz | awk '{print $1}')
+
+          # Display checksum comparison
+          echo "::group::Checksum verification"
+          echo "Expected: ${EXPECTED_CHECKSUM}"
+          echo "Actual:   ${ACTUAL_CHECKSUM}"
+          echo "::endgroup::"
+
+          # Verify checksums match
+          if [ "${EXPECTED_CHECKSUM}" != "${ACTUAL_CHECKSUM}" ]; then
+            echo "::error::Checksum verification failed! Downloaded file may be corrupted or tampered."
+            exit 1
+          fi
+
+          echo "✓ Checksum verification passed"
+
+          # Extract and install
+          echo "::group::Installing actionlint"
+          tar -xzf /tmp/actionlint.tar.gz -C /tmp
+          sudo install -m 755 /tmp/actionlint /usr/local/bin/actionlint
+          echo "::endgroup::"
+
+          # Verify installation
+          echo "Installed version:"
+          actionlint -version
+
+          # Cleanup
+          rm -f /tmp/actionlint.tar.gz /tmp/checksums.txt /tmp/actionlint
+
+      # Step 4: Run actionlint with JSON output
+      - name: Run actionlint
+        id: actionlint
+        run: |
+          mkdir -p .github/report
+
+          set +e
+          actionlint -config-file ${{ inputs.config-file }} -color 2>&1 | tee .github/report/report.log
+          actionlint_status=${PIPESTATUS[0]}
+          set -e
+
+          echo "status=${actionlint_status}" >> "$GITHUB_OUTPUT"
+          exit "${actionlint_status}"
+
+      # Step 5: Upload error report as artifact (only on failure)
+      - name: Upload actionlint report
+        if: failure() && steps.actionlint.outputs.status != '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: actionlint-report
+          path: .github/report/report.json
+          retention-days: 30
