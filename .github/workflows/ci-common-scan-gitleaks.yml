@@ -1,0 +1,134 @@
+# src: ./.github/workflows/ci-common-scan-gitleaks.yml
+# @(#) : GitHub Actions workflow for Gitleaks secret scanning
+#
+# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: Common CI Scan Gitleaks
+
+# Minimal permissions following security best practices
+permissions:
+  contents: read
+
+# Reusable workflow trigger
+on:
+  workflow_call:
+    inputs:
+      config-file:
+        type: string
+        default: ".shared/configs/gitleaks.toml"
+        description: "Path to gitleaks config file"
+        required: false
+      gitleaks-version:
+        type: string
+        default: "8.29.0"
+        description: "gitleaks version to install"
+        required: false
+      fetch-depth:
+        type: number
+        default: 1
+        description: "Git history depth to fetch (0 for full history)"
+        required: false
+
+jobs:
+  gitleaks:
+    name: Scan secrets with Gitleaks
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+          persist-credentials: false
+
+      # Step 2: Checkout shared configs from atsushifx/.github
+      - name: Checkout shared configs
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: aglabo/.github
+          ref: releases
+          path: .shared
+          persist-credentials: false
+
+      # Step 3: Setup Gitleaks binary with checksum verification
+      - name: Setup Gitleaks
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ inputs.gitleaks-version }}"
+          DOWNLOAD_URL="https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
+          CHECKSUM_URL="https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_checksums.txt"
+
+          # Download Gitleaks tarball and checksums
+          echo "::group::Downloading Gitleaks v${VERSION}"
+          curl -sSL -o /tmp/gitleaks.tar.gz "${DOWNLOAD_URL}"
+          curl -sSL -o /tmp/checksums.txt "${CHECKSUM_URL}"
+          echo "::endgroup::"
+
+          # Extract expected checksum for Linux x64
+          EXPECTED_CHECKSUM=$(grep -w "gitleaks_${VERSION}_linux_x64.tar.gz" /tmp/checksums.txt | awk '{print $1}' | head -1)
+
+          # Calculate actual checksum
+          ACTUAL_CHECKSUM=$(sha256sum /tmp/gitleaks.tar.gz | awk '{print $1}')
+
+          # Display checksum comparison
+          echo "::group::Checksum verification"
+          echo "Expected: ${EXPECTED_CHECKSUM}"
+          echo "Actual:   ${ACTUAL_CHECKSUM}"
+          echo "::endgroup::"
+
+          # Verify checksums match
+          if [ "${EXPECTED_CHECKSUM}" != "${ACTUAL_CHECKSUM}" ]; then
+            echo "::error::Checksum verification failed! Downloaded file may be corrupted or tampered."
+            exit 1
+          fi
+
+          echo "✓ Checksum verification passed"
+
+          # Extract and install
+          echo "::group::Installing Gitleaks"
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp
+          sudo install -m 755 /tmp/gitleaks /usr/local/bin/gitleaks
+          echo "::endgroup::"
+
+          # Verify installation
+          echo "Installed version:"
+          gitleaks version
+
+          # Cleanup
+          rm -f /tmp/gitleaks.tar.gz /tmp/checksums.txt /tmp/gitleaks
+
+      # Step 4: Prepare report directory
+      - name: Prepare report directory
+        run: mkdir -p .github/report
+
+      # Step 5: Run Gitleaks
+      - name: Run Gitleaks
+        id: gitleaks
+        run: |
+          set +e
+          gitleaks protect \
+            --source=. \
+            --config=${{ inputs.config-file }} \
+            --report-path=.github/report/gitleaks-report.json \
+            --exit-code=1 \
+            --verbose
+          gitleaks_status=$?
+          set -e
+
+          echo "status=${gitleaks_status}" >> "$GITHUB_OUTPUT"
+          exit "${gitleaks_status}"
+
+      # Step 6: Upload scan results (only on failure)
+      - name: Upload Gitleaks report
+        if: failure() && steps.gitleaks.outputs.status != '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gitleaks-report
+          path: .github/report/gitleaks-report.json
+          retention-days: 30
