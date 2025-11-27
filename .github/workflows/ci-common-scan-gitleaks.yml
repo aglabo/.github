@@ -23,7 +23,7 @@ on:
         required: false
       gitleaks-version:
         type: string
-        default: "8.29.0"
+        default: "8.30.0"
         description: "gitleaks version to install"
         required: false
       fetch-depth:
