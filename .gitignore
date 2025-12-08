@@ -7,7 +7,7 @@
 # https://opensource.org/licenses/MIT
 
 
-##		General
+##	General
 #	OS specific files
 .DS_Store
 thumbs.db
@@ -31,14 +31,18 @@ $~*
 *swp
 *lock
 
-#	.env files
+#   .env files
 .env*
 .env.*
 
-## AI generated files
+##  AI generated files
 
-## Coding AI depended
-# CLAUDE.md
+##  Coding AI depended
+#   sdd
+.cc-sdd/
+
+# claude code
+!CLAUDE.md
 .claude/*
 
 # MCP server dependency files
@@ -50,7 +54,7 @@ temp/
 tmp/
 
 
-##		Editor
+##  Editor
 #	VSCode
 .vscode/*
 !.vscode/settings.json
@@ -60,3 +64,7 @@ tmp/
 !.vscode/*.code-snippets
 !.vscode/cspell*
 
+##  Node
+#	node_modules
+node_modules/
+**/node_modules/

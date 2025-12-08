@@ -90,6 +90,11 @@ tab_width = 4
 # ─────────────────────────────
 # Special Files (e.g. Dockerfile, LICENSE)
 # ─────────────────────────────
+[*ignore]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
 # [Dockerfile]
 # indent_style = space
 # indent_size = 2
