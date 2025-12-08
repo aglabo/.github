@@ -36,15 +36,15 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
 
       # Step 2: Checkout shared configs from atsushifx/.github
       - name: Checkout shared configs
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
-          repository: aglabo/.github
+          repository: atsushifx/.github
           ref: releases
           path: .shared
           persist-credentials: false
@@ -114,7 +114,7 @@ jobs:
       # Step 5: Upload error report as artifact (only on failure)
       - name: Upload actionlint report
         if: failure() && steps.actionlint.outputs.status != '0'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: actionlint-report
           path: .github/report/report.json

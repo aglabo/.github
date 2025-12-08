@@ -191,7 +191,7 @@ make_context_block() {
 # @exitcode 0 If model is supported
 # @exitcode 1 If model is unsupported
 get_model_command() {
-  local model="${1:-gpt-5}"
+  local model="${1:-gpt-5.1}"
   local cmd=""
 
   case "$model" in
