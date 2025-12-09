@@ -6,7 +6,6 @@
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
-
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
   "version": "0.2",
@@ -25,7 +24,6 @@
       "scope": "workspace"
     }
   ],
-
   "dictionaries": [
     "en-us",
     // special terms
@@ -44,6 +42,5 @@
     "user-dic",
     "project-dic"
   ],
-
   "useGitignore": true
 }

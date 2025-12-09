@@ -1,5 +1,5 @@
 # src: shared/configs/secretlint.config.base.yaml
-# @(#) : secretlint base configuration
+# @(#) : editorconfig base configs (templates)
 #
 # Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
 #
@@ -90,10 +90,12 @@ tab_width = 4
 # ─────────────────────────────
 # Special Files (e.g. Dockerfile, LICENSE)
 # ─────────────────────────────
-[*ignore]
+# ignore files
+[**/*ignore]
 indent_style = space
 indent_size = 2
 tab_width = 2
+
 
 # [Dockerfile]
 # indent_style = space
