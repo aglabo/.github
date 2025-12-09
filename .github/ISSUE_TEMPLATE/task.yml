@@ -1,0 +1,80 @@
+name: 📋 Task
+description: Development, maintenance, or project tasks.
+title: "[Task]"
+labels: ["task"]
+assignees: ["atsushifx"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for creating a development task! Please provide clear details to help with planning and execution 🙏
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: 🏷 Task Type
+      description: Select the category that best describes this task.
+      options:
+        - 🔧 Development Task
+        - 🧹 Maintenance
+        - 📚 Documentation
+        - 🔄 Refactoring
+        - 🔐 Security
+        - ⚡ Performance
+        - 🧪 Testing
+        - 🚀 DevOps/CI
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📋 Task description
+      description: Describe what needs to be done and why.
+      placeholder: "Update the build system to support ES2022 target for better performance..."
+
+  - type: textarea
+    attributes:
+      label: ✅ Acceptance criteria
+      description: Define what constitutes completion of this task.
+      placeholder: |
+        - [ ] Update TypeScript config to target ES2022
+        - [ ] Update build scripts accordingly
+        - [ ] Verify all tests pass
+        - [ ] Update documentation if needed
+
+  - type: input
+    attributes:
+      label: ⏱ Estimated effort
+      description: How much time do you think this will take?
+      placeholder: "2-3 hours / 1 day / 1 week"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🎯 Priority
+      description: How urgent is this task?
+      options:
+        - 🔴 Critical
+        - 🟡 High
+        - 🟢 Medium
+        - 🔵 Low
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔗 Dependencies
+      description: List any blocking issues, PRs, or prerequisites.
+      placeholder: "Depends on #42, requires Node.js 18+ support..."
+
+  - type: textarea
+    attributes:
+      label: 📎 Additional context
+      description: Links, references, or other supporting information.
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🤖 This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.

@@ -15,7 +15,9 @@ permissions:
 on:
   push:
     branches:
-      - "**"
+      - main
+      - master
+      - releases
 
   pull_request:
     branches:
