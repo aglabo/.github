@@ -51,13 +51,13 @@ jobs:
 
       # Step 3: Setup ghalint binary
       - name: Setup ghalint
-        uses: aglabo/.github/.github/actions/setup-ghalint@r1.1.0
+        uses: aglabo/.github/.github/actions/setup-ghalint@r1.1.1
         with:
           version: ${{ inputs.ghalint-version }}
 
       # Step 4: Run ghalint with color output
       - name: Run ghalint
-        id: ghalint
+        id: ghalint-run
         run: |
           mkdir -p .github/report
 

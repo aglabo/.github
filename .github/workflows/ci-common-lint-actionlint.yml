@@ -51,13 +51,13 @@ jobs:
 
       # Step 3: Setup actionlint binary
       - name: Setup actionlint
-        uses: aglabo/.github/.github/actions/setup-actionlint@r1.1.0
+        uses: aglabo/.github/.github/actions/setup-actionlint@r1.1.1
         with:
           version: ${{ inputs.actionlint-version }}
 
       # Step 4: Run actionlint with JSON output
       - name: Run actionlint
-        id: actionlint
+        id: actionlint-run
         run: |
           mkdir -p .github/report
 
