@@ -1,20 +1,23 @@
 ---
-header:
-  - src: README.ja.md
-  - @(#): .github Shared Development Infrastructure
-title: .github - 共有開発インフラ
-description: OSS品質を自動化で保証する共通開発基盤 - Configuration as Truth
-version: 1.0.0
-created: 2025-11-08
-authors:
-  - atsushifx
-changes:
-  - 2025-11-08: 初版作成
-copyright:
-  - Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
-  - This software is released under the MIT License.
-  - https://opensource.org/licenses/MIT
+title: .github - Shared Development Infrastructure
+description: Common development infrastructure ensuring OSS quality through automation - Configuration as Truth
 ---
+
+<!--
+Document Metadata:
+- Version: 1.0.0
+- Created: 2025-11-08
+- Author: atsushifx
+- Last Updated: 2025-11-14
+
+Changelog:
+- 2025-11-14: Major simplification aligned with CLAUDE.md, detailed info delegated to CLAUDE.md
+- 2025-11-08: Initial version
+
+Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+This software is released under the MIT License.
+https://opensource.org/licenses/MIT
+-->
 
 <!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
 
@@ -22,7 +25,7 @@ copyright:
 
 <!-- textlint-enable -->
 
-## 🛠 `.github` 共有開発インフラ
+## `.github` 共有開発インフラ
 
 ## 自動化によるOSS品質保証 - ドキュメントではなく、設定で品質を強制する開発基盤
 
@@ -170,6 +173,6 @@ Copyright (c) 2025- aglabo
 
 本リポジトリは、下記の AI エージェントのサポートのもと作成・整備されました。
 
-- 🤖 Elpha（エルファ）
 - 🤖 Kobeni（小紅）
 - 🤖 Tsumugi（つむぎ）
+- 🤖 Elpha（エルファ）
