@@ -6,7 +6,7 @@ labels: ["pull request"]
 assignees: ["atsushifx"]
 ---
 
-## ✨ Overview
+## Overview
 
 Briefly explain what this Pull Request changes and why.
 Focus on the motivation and any background context.
@@ -16,7 +16,7 @@ Focus on the motivation and any background context.
 
 ---
 
-## 🔧 Changes
+## Changes
 
 List the key changes included in this PR:
 
@@ -27,7 +27,7 @@ List the key changes included in this PR:
 
 ---
 
-## 📂 Related Issues
+## Related Issues
 
 Link any issues this PR closes or relates to:
 
@@ -36,7 +36,7 @@ Link any issues this PR closes or relates to:
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 Please confirm the following before requesting review:
 
@@ -48,6 +48,6 @@ Please confirm the following before requesting review:
 
 ---
 
-## 💬 Additional Notes
+## Additional Notes
 
 *Optional: add screenshots, design notes, or concerns for reviewers.*
