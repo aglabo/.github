@@ -1,24 +1,27 @@
 ---
-header:
-  - src: README.md
-  - @(#): .github Shared Development Infrastructure
 title: .github - Shared Development Infrastructure
 description: Common development infrastructure ensuring OSS quality through automation - Configuration as Truth
-version: 1.0.0
-created: 2025-11-08
-authors:
-  - atsushifx
-changes:
-  - 2025-11-08: Initial version
-copyright:
-  - Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
-  - This software is released under the MIT License.
-  - https://opensource.org/licenses/MIT
 ---
+
+<!--
+Document Metadata:
+- Version: 1.0.0
+- Created: 2025-11-08
+- Author: atsushifx
+- Last Updated: 2025-11-14
+
+Changelog:
+- 2025-11-14: Major simplification aligned with CLAUDE.md, detailed info delegated to CLAUDE.md
+- 2025-11-08: Initial version
+
+Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+This software is released under the MIT License.
+https://opensource.org/licenses/MIT
+-->
 
 English | [日本語](README.ja.md)
 
-## 🛠 `.github` Shared Development Infrastructure
+## `.github` Shared Development Infrastructure
 
 ## OSS Quality Assurance Through Automation - Enforce Quality via Configuration, Not Documentation
 
@@ -170,6 +173,6 @@ Copyright (c) 2025- aglabo
 
 This repository was created and maintained with the support of AI agent assistants:
 
-- 🤖 Elpha
 - 🤖 Kobeni
 - 🤖 Tsumugi
+- 🤖 Elpha
