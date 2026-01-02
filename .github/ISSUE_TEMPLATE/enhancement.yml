@@ -1,4 +1,4 @@
-name: 🚀 Enhancement
+name: Enhancement
 description: Suggest improvements to existing features or functionality.
 title: "[Enhancement]"
 labels: ["enhancement"]
@@ -8,23 +8,23 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for suggesting an enhancement! Please describe your improvement idea clearly 🙏
+        Thank you for suggesting an enhancement! Please describe your improvement idea clearly
 
   - type: textarea
     attributes:
-      label: 🎯 What feature needs improvement?
+      label: What feature needs improvement?
       description: Describe the existing feature or functionality you'd like to enhance.
       placeholder: "The current logging output format could be improved by..."
 
   - type: textarea
     attributes:
-      label: 🚀 Proposed enhancement
+      label: Proposed enhancement
       description: Describe the specific improvements you'd like to see.
       placeholder: "I would like to add color coding to log levels..."
 
   - type: textarea
     attributes:
-      label: 🔍 Current behavior vs desired behavior
+      label: Current behavior vs desired behavior
       description: Explain how the current implementation works and how it should work after the enhancement.
       placeholder: |
         Current: Log levels are displayed as plain text
@@ -32,17 +32,17 @@ body:
 
   - type: textarea
     attributes:
-      label: 💭 Benefits and impact
+      label: Benefits and impact
       description: Explain why this enhancement would be valuable.
       placeholder: "This would improve readability and help developers quickly identify important log messages..."
 
   - type: textarea
     attributes:
-      label: 📎 Additional context
+      label: Additional context
       description: Links, screenshots, examples, or other supporting info.
 
   - type: markdown
     attributes:
       value: |
         ---
-        🤖 This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
+        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.

@@ -1,4 +1,4 @@
-name: 💬 Open Topic
+name: Open Topic
 description: Share ideas, tech questions, or open-ended thoughts.
 title: "[Open]"
 labels: ["discussion"]
@@ -8,18 +8,18 @@ body:
   - type: dropdown
     id: category
     attributes:
-      label: 🏷 Topic Type
+      label: Topic Type
       description: Select the category that best fits your message.
       options:
-        - 💬 General Topic
-        - 🛠 Technical Question
-        - 🌱 Idea or Concept
+        - General Topic
+        - Technical Question
+        - Idea or Concept
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: 💡 What would you like to discuss?
+      label: What would you like to discuss?
       description: Feel free to share your thoughts, questions, or feedback.
       placeholder: |
         I have an idea for improving the onboarding experience...
@@ -28,7 +28,7 @@ body:
 
   - type: textarea
     attributes:
-      label: 📎 Context or references (optional)
+      label: Context or references (optional)
       description: Provide any related links, documents, or notes.
       placeholder: |
         Related to PR #42 and onboarding.md
@@ -37,6 +37,6 @@ body:
     attributes:
       value: |
         ---
-        🤖 This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
+        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
 
         > If the topic becomes active, we may move the conversation to [GitHub Discussions](https://github.com/atsushifx/discussions) for better tracking and visibility.
