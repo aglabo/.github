@@ -41,14 +41,14 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
           persist-credentials: false
 
       # Step 2: Checkout shared configs from atsushifx/.github
       - name: Checkout shared configs
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: atsushifx/.github
           ref: releases
@@ -127,7 +127,7 @@ jobs:
       # Step 6: Upload scan results (only on failure)
       - name: Upload Gitleaks report
         if: failure() && steps.gitleaks.outputs.status != '0'
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: gitleaks-report
           path: .github/report/gitleaks-report.json
