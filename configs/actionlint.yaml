@@ -7,6 +7,6 @@ self-hosted-runner:
   labels:
     - ubuntu-slim
 
-# Configuration variables defined in repository or organization
-# Set to empty array to disallow all config variables, or null to disable check
+  # TODO(security):
+  # Replace null with explicit allow-list once variables are stabilized.
   config-variables: null
