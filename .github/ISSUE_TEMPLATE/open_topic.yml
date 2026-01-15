@@ -2,9 +2,15 @@ name: Open Topic
 description: Share ideas, tech questions, or open-ended thoughts.
 title: "[Open]"
 labels: ["discussion"]
-assignees: ["atsushifx"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for exploration and discussion.
+        If a concrete feature or fix is identified,
+        please open a Feature Request issue instead.
+
   - type: dropdown
     id: category
     attributes:
@@ -18,6 +24,14 @@ body:
       required: true
 
   - type: textarea
+    id: goal
+    attributes:
+      label: Goal / Question
+      description: |
+        What are we trying to understand or decide in this topic?
+
+  - type: textarea
+    id: what_would_you_discuss
     attributes:
       label: What would you like to discuss?
       description: Feel free to share your thoughts, questions, or feedback.
@@ -33,10 +47,20 @@ body:
       placeholder: |
         Related to PR #42 and onboarding.md
 
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome / Next Step
+      description: |
+        Summarize the outcome of this discussion or investigation.
+
+        Possible next steps:
+        - Close as resolved or no longer relevant
+        - Open a Feature Request
+        - Write or update a Decision Record (DR)
+
   - type: markdown
     attributes:
       value: |
         ---
-        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
-
-        > If the topic becomes active, we may move the conversation to [GitHub Discussions](https://github.com/atsushifx/discussions) for better tracking and visibility.
+        > If the topic becomes active, we may move the conversation to [GitHub Discussions](https://github.com/aglabo/discussions) for better tracking and visibility.
