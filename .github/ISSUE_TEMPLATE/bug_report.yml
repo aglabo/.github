@@ -2,48 +2,110 @@ name: Bug Report
 description: Report a bug to help us improve the project.
 title: "[Bug]"
 labels: ["bug"]
-assignees: ["atsushifx"]
 
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for taking the time to report a bug!
-        Please fill out the form below as clearly and completely as possible
+        Please fill out the form below as clearly and completely as possible.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Critical (System crash, data loss, security vulnerability)
+        - Major (Core feature broken, no workaround)
+        - Minor (Feature partially broken, workaround exists)
+        - Cosmetic (UI/UX issue, typo, minor inconvenience)
+    validations:
+      required: true
 
   - type: textarea
+    id: bug_summary
     attributes:
-      label: What happened?
-      description: Describe the unexpected behavior or error.
-      placeholder: "When I run `pnpm lint`, I get an error..."
+      label: Bug Summary
+      description: Briefly describe the bug in 1-2 sentences.
+      placeholder: "The linting command fails with an unhandled exception when..."
+    validations:
+      required: true
 
   - type: textarea
+    id: expected_behavior
     attributes:
-      label: Steps to reproduce
-      description: Provide step-by-step instructions.
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "The command should complete successfully and output the lint results."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: "The command throws an error: 'TypeError: Cannot read property...'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide clear, numbered steps to reproduce the issue.
       placeholder: |
-        1. Run `pnpm lint`
-        2. See error message
+        1. Clone the repository
+        2. Run `pnpm install`
+        3. Run `pnpm lint`
+        4. Observe the error message
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
 
-  - type: input
+  - type: textarea
+    id: environment
     attributes:
       label: Environment
-      description: OS, Node.js, browser info, etc.
-      placeholder: "Windows 11 / Node.js v18.17 / pnpm 8.9"
-
-  - type: textarea
-    attributes:
-      label: Screenshots or logs (optional)
-      description: Paste relevant output or attach screenshots if available.
-
-  - type: textarea
-    attributes:
-      label: Additional context
-      description: Anything else we should know?
-      placeholder: "This issue may be related to the recent update to..."
-
-  - type: markdown
-    attributes:
+      description: Provide details about your environment.
+      placeholder: |
+        - OS: Windows 11 / macOS 14.0 / Ubuntu 22.04
+        - Node.js: v18.17.0
+        - Package Manager: pnpm 8.9.0
+        - Browser (if applicable): Chrome 120
+        - Repository version/commit: v1.2.3 or abc1234
       value: |
-        ---
-        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
+        - OS:
+        - Node.js:
+        - Package Manager:
+        - Repository version/commit:
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots_logs
+    attributes:
+      label: Screenshots or Logs (optional)
+      description: Paste relevant error output, stack traces, or attach screenshots.
+      render: shell
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define when this bug is considered fixed.
+      placeholder: |
+        - [ ] The command completes without errors
+        - [ ] Tests pass for the affected functionality
+        - [ ] Documentation updated if behavior changed
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Logs, screenshots, stack traces, or related issues.
+      placeholder: "This started happening after the v1.2.0 release..."

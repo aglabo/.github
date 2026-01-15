@@ -2,13 +2,13 @@ name: Task
 description: Development, maintenance, or project tasks.
 title: "[Task]"
 labels: ["task"]
-assignees: ["atsushifx"]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for creating a development task! Please provide clear details to help with planning and execution
+        **Owner:** (assignee)
+        **Reviewer (if needed):**
 
   - type: dropdown
     id: task_type
@@ -32,11 +32,16 @@ body:
       label: Task description
       description: Describe what needs to be done and why.
       placeholder: "Update the build system to support ES2022 target for better performance..."
+    validations:
+      required: true
 
   - type: textarea
     attributes:
-      label: Acceptance criteria
-      description: Define what constitutes completion of this task.
+      label: Task Checklist
+      description: |
+        Concrete steps or checks derived from
+        Feature / Release acceptance criteria.
+        All checked items are required to consider this task complete.
       placeholder: |
         - [ ] Update TypeScript config to target ES2022
         - [ ] Update build scripts accordingly
@@ -46,7 +51,9 @@ body:
   - type: input
     attributes:
       label: Estimated effort
-      description: How much time do you think this will take?
+      description: |
+        Optional rough estimate.
+        This does not represent a commitment.
       placeholder: "2-3 hours / 1 day / 1 week"
 
   - type: dropdown
@@ -60,7 +67,7 @@ body:
         - Medium
         - Low
     validations:
-      required: true
+      required: false
 
   - type: textarea
     attributes:
@@ -72,9 +79,3 @@ body:
     attributes:
       label: Additional context
       description: Links, references, or other supporting information.
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.

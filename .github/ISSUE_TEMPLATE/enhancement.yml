@@ -8,21 +8,57 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for suggesting an enhancement! Please describe your improvement idea clearly
+        Thank you for suggesting an enhancement! Please describe your improvement idea clearly.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this enhancement?
+      options:
+        - High (Significantly improves core functionality)
+        - Medium (Improves user experience or developer workflow)
+        - Low (Nice to have, minor improvement)
+    validations:
+      required: true
 
   - type: textarea
+    id: feature_needs_improvement
     attributes:
       label: What feature needs improvement?
       description: Describe the existing feature or functionality you'd like to enhance.
       placeholder: "The current logging output format could be improved by..."
 
   - type: textarea
+    id: proposed_enhancement
     attributes:
       label: Proposed enhancement
       description: Describe the specific improvements you'd like to see.
       placeholder: "I would like to add color coding to log levels..."
 
   - type: textarea
+    id: design_rationale
+    attributes:
+      label: Design Rationale
+      description: Why this approach was chosen over alternatives.
+      placeholder: |
+        - Considered alternatives:
+        - Why they were rejected:
+        - Key trade-offs:
+    validations:
+      required: true
+
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-Goals
+      description: What is explicitly out of scope for this enhancement.
+      placeholder: |
+        - Not included in this change:
+        - Will be addressed separately:
+
+  - type: textarea
+    id: current_vs_desired
     attributes:
       label: Current behavior vs desired behavior
       description: Explain how the current implementation works and how it should work after the enhancement.
@@ -30,19 +66,34 @@ body:
         Current: Log levels are displayed as plain text
         Desired: Log levels are color-coded for better visibility
 
+  - type: checkboxes
+    id: impact_assessment
+    attributes:
+      label: Impact Assessment
+      description: Check all that apply.
+      options:
+        - label: Affects public API
+        - label: Requires documentation update
+        - label: May introduce breaking changes
+
   - type: textarea
+    id: benefits_impact
     attributes:
       label: Benefits and impact
       description: Explain why this enhancement would be valuable.
       placeholder: "This would improve readability and help developers quickly identify important log messages..."
 
   - type: textarea
+    id: additional_context
     attributes:
       label: Additional context
       description: Links, screenshots, examples, or other supporting info.
 
-  - type: markdown
+  - type: textarea
+    id: acceptance_criteria
     attributes:
-      value: |
-        ---
-        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
+      label: Acceptance Criteria
+      description: |
+        This feature is considered done when:
+        - [ ] ...
+        - [ ] ...

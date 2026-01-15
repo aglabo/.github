@@ -2,39 +2,110 @@ name: Feature Request
 description: Suggest a new idea or improvement.
 title: "[Feature]"
 labels: ["enhancement"]
-assignees: ["atsushifx"]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for your idea! Please describe it as clearly and specifically as possible
+        Thank you for your idea! Please describe it as clearly and specifically as possible.
 
   - type: textarea
+    id: observed_facts
     attributes:
-      label: What's the problem you're solving?
-      description: Describe the background or problem that led to this request.
-      placeholder: "I am always frustrated when I need to..."
+      label: Observed Facts / Constraints
+      description: |
+        Describe observable facts and constraints only.
+
+        - What actually happens?
+        - Where does it occur?
+        - Under what conditions?
+        - What constraints (environment, policy, compatibility) exist?
+
+        Avoid opinions, expectations, or solutions.
+      placeholder: |
+        - Running `pnpm lint` on large repos takes 45+ seconds
+        - Config file does not support glob patterns
+        - Error occurs only when NODE_ENV=production
+        - Must maintain backward compatibility with v1.x API
+    validations:
+      required: true
 
   - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: |
+        Describe the desired outcome without specifying implementation.
+
+        - What should the user be able to do?
+        - What result should occur?
+        - What experience is expected?
+
+        Focus on "what" not "how".
+      placeholder: |
+        - User can identify which files will be affected before execution
+        - Operation completes within acceptable time for large repositories
+        - Clear feedback is provided when operation cannot proceed
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
     attributes:
       label: Proposed solution
       description: Describe the feature or change you'd like to see.
-      placeholder: "I would like to have a command like `pnpm check-style`..."
+      placeholder: "Add a `--dry-run` flag to preview changes before applying..."
+    validations:
+      required: true
 
   - type: textarea
+    id: alternatives
     attributes:
       label: Alternatives considered
       description: Other options or approaches you've considered.
       placeholder: "Using ESLint custom rules, or a Vale workaround..."
 
   - type: textarea
+    id: technical_impact
+    attributes:
+      label: Technical Impact / Risk
+      description: |
+        Affected modules, compatibility concerns,
+        migration needs, or potential risks.
+      placeholder: |
+        - Affected: src/config/, src/cli/
+        - Breaking: No (new flag only)
+        - Migration: N/A
+        - Risk: May conflict with existing --verbose flag
+        - DR trigger: Yes/No
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: |
+        Define verifiable conditions to confirm completion.
+        These criteria must be derived from Expected Behavior,
+        not introduce new design decisions.
+        Use checkbox format.
+      placeholder: |
+        - [ ] User can preview changes before applying
+        - [ ] Operation fails gracefully with clear error message
+        - [ ] No data loss occurs on failure
+        - [ ] Behavior is documented
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks (optional)
+      description: |
+        Optional. Can be left blank and generated later
+        from Acceptance Criteria or specs.
+
+  - type: textarea
+    id: additional_context
     attributes:
       label: Additional context
       description: Links, screenshots, design notes, or other supporting info.
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        This project is supported by AI chatbots: **Elpha**, **Kobeni**, and **Tsumugi**.
