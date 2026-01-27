@@ -8,7 +8,7 @@ assignees: []
 body:
   - type: markdown
     attributes:
-      value: "## Release basic info"
+      value: "## Release Basic Info"
 
   - type: input
     id: version
@@ -21,49 +21,56 @@ body:
   - type: dropdown
     id: release_type
     attributes:
-      label: Release type
+      label: Release Type
       options:
         - pre-release
         - stable
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: "## What's the problem you’re solving?"
   - type: textarea
-    id: problem
+    id: release_goal
     attributes:
-      label: Details
+      label: Release Goal / Scope
+      description: |
+        Describe the purpose and scope of this release.
+        - What is the main goal?
+        - What is explicitly out of scope?
     validations:
       required: true
 
-  # 提案する解決策
-  - type: markdown
-    attributes:
-      value: "## Proposed solution"
   - type: textarea
-    id: solution
+    id: included_items
     attributes:
-      label: Plan
+      label: Included Features / Fixes
+      description: |
+        List features, fixes, or PRs included in this release.
+        Use links where possible.
+
+  - type: textarea
+    id: excluded_items
+    attributes:
+      label: Excluded / Deferred Items
+      description: |
+        Explicitly note items that will NOT be included.
+
+  - type: textarea
+    id: release_readiness
+    attributes:
+      label: Release Readiness Criteria
+      description: |
+        Conditions that must be satisfied before releasing.
+        - Tests and CI are green
+        - Required documentation is updated
+        - Breaking changes are documented
+        - Rollback strategy is defined
     validations:
       required: true
 
-  # 代替案
   - type: markdown
     attributes:
-      value: "## Alternatives considered"
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Options
-    validations:
-      required: false
+      value: "## Additional Context"
 
-  # 追加情報
-  - type: markdown
-    attributes:
-      value: "## Additional context"
   - type: textarea
     id: context
     attributes:

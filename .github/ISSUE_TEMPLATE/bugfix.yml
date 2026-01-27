@@ -1,0 +1,103 @@
+name: Bugfix
+description: Track a bug fix implementation.
+title: "[Bugfix]"
+labels: ["bugfix"]
+assignees: [""]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Track a bug fix implementation.
+        Link to the original bug report if available.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the bug being fixed?
+      options:
+        - Critical (System crash, data loss, security vulnerability)
+        - Major (Core feature broken, no workaround)
+        - Minor (Feature partially broken, workaround exists)
+        - Cosmetic (UI/UX issue, typo, minor inconvenience)
+    validations:
+      required: true
+
+  - type: input
+    id: related_issue
+    attributes:
+      label: Related Issue
+      description: Link to the original bug report (if any).
+      placeholder: "#123 or https://github.com/..."
+
+  - type: textarea
+    id: bug_summary
+    attributes:
+      label: Bug Summary
+      description: Briefly describe the bug being fixed.
+      placeholder: "The linting command fails with an unhandled exception when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: Root Cause Analysis
+      description: Describe the underlying cause, not the symptom.
+      placeholder: |
+        - Trigger:
+        - Faulty assumption:
+        - Why existing tests did not catch it:
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix_description
+    attributes:
+      label: Fix Description
+      description: How will you fix this bug?
+      placeholder: "Add null check before processing the input..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected_components
+    attributes:
+      label: Affected Components
+      description: Files, modules, or APIs modified by this fix.
+      placeholder: |
+        - src/...
+        - packages/...
+
+  - type: textarea
+    id: test_plan
+    attributes:
+      label: Test Plan
+      description: How will you verify the fix works?
+      placeholder: |
+        1. Run existing tests
+        2. Add new test case for null input
+        3. Manual verification with edge cases
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Conditions under which this fix is considered complete.
+      placeholder: |
+        - [ ] Reproduction steps no longer fail
+        - [ ] Existing behavior unchanged
+        - [ ] Tests added for the fix
+        - [ ] No regression introduced
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Any other information relevant to this fix?
+      placeholder: "This fix may also resolve #456..."

@@ -36,63 +36,24 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
-      # Step 2: Checkout shared configs from atsushifx/.github
+      # Step 2: Checkout shared configs from aglabo/.github
       - name: Checkout shared configs
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: aglabo/.github
           ref: releases
           path: .shared
           persist-credentials: false
 
-      # Step 3: Setup ghalint binary with checksum verification
+      # Step 3: Setup ghalint binary
       - name: Setup ghalint
-        run: |
-          set -euo pipefail
-
-          VERSION="${{ inputs.ghalint-version }}"
-          DOWNLOAD_URL="https://github.com/suzuki-shunsuke/ghalint/releases/download/v${VERSION}/ghalint_${VERSION}_linux_amd64.tar.gz"
-          CHECKSUM_URL="https://github.com/suzuki-shunsuke/ghalint/releases/download/v${VERSION}/ghalint_${VERSION}_checksums.txt"
-
-          # Download ghalint tarball and checksums
-          echo "::group::Downloading ghalint v${VERSION}"
-          curl -sSL -o /tmp/ghalint.tar.gz "${DOWNLOAD_URL}"
-          curl -sSL -o /tmp/checksums.txt "${CHECKSUM_URL}"
-          echo "::endgroup::"
-
-          # Extract expected checksum for Linux AMD64 (exact match to avoid .sbom.json)
-          EXPECTED_CHECKSUM=$(grep -w "ghalint_${VERSION}_linux_amd64.tar.gz" /tmp/checksums.txt | head -1 | awk '{print $1}')
-          echo "Expected checksum: ${EXPECTED_CHECKSUM}"
-          ACTUAL_CHECKSUM=$(sha256sum /tmp/ghalint.tar.gz | awk '{print $1}')
-          echo "Actual checksum:   ${ACTUAL_CHECKSUM}"
-
-          # Verify checksum - will exit immediately if verification fails
-          echo "::group::Verifying checksum"
-          if [ "${ACTUAL_CHECKSUM}" != "${EXPECTED_CHECKSUM}" ]; then
-            echo "::error::Checksum verification failed! Downloaded file may be corrupted or tampered."
-            echo "::error::Expected: ${EXPECTED_CHECKSUM}"
-            echo "::error::Actual:   ${ACTUAL_CHECKSUM}"
-            exit 1
-          fi
-          echo "✓ Checksum verification successful"
-          echo "::endgroup::"
-
-          # Extract and install
-          echo "::group::Installing ghalint"
-          tar -xzf /tmp/ghalint.tar.gz -C /tmp
-          sudo install -m 755 /tmp/ghalint /usr/local/bin/ghalint
-          echo "::endgroup::"
-
-          # Verify installation
-          echo "Installed version:"
-          ghalint --version
-
-          # Cleanup
-          rm -f /tmp/ghalint.tar.gz /tmp/checksums.txt /tmp/ghalint
+        uses: ./.github/actions/setup-ghalint
+        with:
+          version: ${{ inputs.ghalint-version }}
 
       # Step 4: Run ghalint with color output
       - name: Run ghalint

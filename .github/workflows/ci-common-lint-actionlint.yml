@@ -36,66 +36,24 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
-      # Step 2: Checkout shared configs from atsushifx/.github
+      # Step 2: Checkout shared configs from aglabo/.github
       - name: Checkout shared configs
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          repository: atsushifx/.github
+          repository: aglabo/.github
           ref: releases
           path: .shared
           persist-credentials: false
 
-      # Step 3: Setup actionlint binary with checksum verification
+      # Step 3: Setup actionlint binary
       - name: Setup actionlint
-        run: |
-          set -euo pipefail
-
-          VERSION="${{ inputs.actionlint-version }}"
-          DOWNLOAD_URL="https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_linux_amd64.tar.gz"
-          CHECKSUM_URL="https://github.com/rhysd/actionlint/releases/download/v${VERSION}/actionlint_${VERSION}_checksums.txt"
-
-          # Download actionlint tarball and checksums
-          echo "::group::Downloading actionlint v${VERSION}"
-          curl -sSL -o /tmp/actionlint.tar.gz "${DOWNLOAD_URL}"
-          curl -sSL -o /tmp/checksums.txt "${CHECKSUM_URL}"
-          echo "::endgroup::"
-
-          # Extract expected checksum for Linux AMD64
-          EXPECTED_CHECKSUM=$(grep -w "actionlint_${VERSION}_linux_amd64.tar.gz" /tmp/checksums.txt | awk '{print $1}' | head -1)
-
-          # Calculate actual checksum
-          ACTUAL_CHECKSUM=$(sha256sum /tmp/actionlint.tar.gz | awk '{print $1}')
-
-          # Display checksum comparison
-          echo "::group::Checksum verification"
-          echo "Expected: ${EXPECTED_CHECKSUM}"
-          echo "Actual:   ${ACTUAL_CHECKSUM}"
-          echo "::endgroup::"
-
-          # Verify checksums match
-          if [ "${EXPECTED_CHECKSUM}" != "${ACTUAL_CHECKSUM}" ]; then
-            echo "::error::Checksum verification failed! Downloaded file may be corrupted or tampered."
-            exit 1
-          fi
-
-          echo "✓ Checksum verification passed"
-
-          # Extract and install
-          echo "::group::Installing actionlint"
-          tar -xzf /tmp/actionlint.tar.gz -C /tmp
-          sudo install -m 755 /tmp/actionlint /usr/local/bin/actionlint
-          echo "::endgroup::"
-
-          # Verify installation
-          echo "Installed version:"
-          actionlint -version
-
-          # Cleanup
-          rm -f /tmp/actionlint.tar.gz /tmp/checksums.txt /tmp/actionlint
+        uses: ./.github/actions/setup-actionlint
+        with:
+          version: ${{ inputs.actionlint-version }}
 
       # Step 4: Run actionlint with JSON output
       - name: Run actionlint

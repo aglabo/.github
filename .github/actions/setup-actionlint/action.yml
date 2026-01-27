@@ -1,0 +1,83 @@
+# src: ./.github/actions/setup-actionlint/action.yml
+# @(#) : composite GitHub Action to setup actionlint
+#
+# Copyright (c) 2026- atsushifx <https://github.com/atsushifx>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: "Setup actionlint"
+description: "Download, verify, and install actionlint binary with SHA256 checksum verification (Linux amd64 only)"
+author: "aglabo"
+
+branding:
+  icon: "download"
+  color: "blue"
+
+inputs:
+  version:
+    description: "actionlint version to install"
+    required: false
+    default: "1.7.10"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Validate OS compatibility"
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/validate-os.sh"
+
+    - name: "Setup installation directories"
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/setup-directories.sh"
+
+    - name: "Download actionlint binary and checksums"
+      shell: bash
+      run: |
+        # cspell:words rhysd -- disable check github user name
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/download-tool.sh" \
+          "actionlint" \
+          "${{ inputs.version }}" \
+          "rhysd" \
+          "amd64" \
+          "${TEMP_DIR}"
+
+    - name: "Verify checksum"
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/verify-checksum.sh" \
+          "actionlint" \
+          "${{ inputs.version }}" \
+          "amd64" \
+          "${TEMP_DIR}"
+
+    - name: "Extract and install actionlint"
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/extract-install.sh" \
+          "actionlint" \
+          "${TEMP_DIR}" \
+          "${BIN_DIR}"
+
+    - name: "Validate installation"
+      shell: bash
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/validate-installation.sh" \
+          "actionlint" \
+          "${BIN_DIR}" \
+          "actionlint -version"
+
+    - name: "Cleanup temporary files"
+      shell: bash
+      if: always()
+      run: |
+        set -euo pipefail
+        "${GITHUB_ACTION_PATH}/../scripts/cleanup.sh" "${TEMP_DIR:-}"

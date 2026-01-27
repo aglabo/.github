@@ -8,22 +8,38 @@ assignees: ["atsushifx"]
 
 ## Overview
 
-Briefly explain what this Pull Request changes and why.
-Focus on the motivation and any background context.
+**Summary:**
+(Brief, imperative one-line summary of the change)
 
-> Example:
-> Implements Vale vocabulary to enforce custom spelling standards.
+**Background / Motivation:**
+Briefly explain why this change is needed and any relevant context.
+
+> Example Summary: Adds Vale-based spelling validation to enforce repository terminology.
 
 ---
 
 ## Changes
 
-List the key changes included in this PR:
+Summarize the concrete changes in this PR:
 
-- [ ] Added/updated files or modules
-- [ ] Removed deprecated logic or configs
-- [ ] Refactored[X]for clarity/performance
-- [ ] Other (please describe below)
+<!-- Example:
+- Added Vale vocabulary definitions under `configs/vale/`
+- Updated CI to run Vale checks on pull requests
+-->
+
+---
+
+## Change Type (optional)
+
+Select all that apply:
+
+- [ ] Feature
+- [ ] Bug fix
+- [ ] Refactor
+- [ ] Documentation
+- [ ] Configuration
+- [ ] CI/CD
+- [ ] Other
 
 ---
 
@@ -38,13 +54,12 @@ Link any issues this PR closes or relates to:
 
 ## Checklist
 
-Please confirm the following before requesting review:
+Please confirm the following (if applicable):
 
-- [ ] Lint checks pass (`pnpm lint`)
-- [ ] Tests pass (`pnpm test`)
-- [ ] Documentation is updated (if applicable)
+- [ ] Formatting and lint checks pass (e.g. `dprint check`, `pnpm lint`)
+- [ ] Tests pass (if test suite exists)
+- [ ] Documentation updated (for user-facing changes)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/)
-- [ ] Descriptions and examples are clear
 
 ---
 
