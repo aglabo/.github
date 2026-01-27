@@ -41,67 +41,25 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: ${{ inputs.fetch-depth }}
           persist-credentials: false
 
-      # Step 2: Checkout shared configs from atsushifx/.github
+      # Step 2: Checkout shared configs from aglabo/.github
       - name: Checkout shared configs
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          repository: atsushifx/.github
+          repository: aglabo/.github
           ref: releases
           path: .shared
           persist-credentials: false
 
-      # Step 3: Setup Gitleaks binary with checksum verification
+      # Step 3: Setup Gitleaks binary
       - name: Setup Gitleaks
-        run: |
-          set -euo pipefail
-
-          VERSION="${{ inputs.gitleaks-version }}"
-          DOWNLOAD_URL="https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
-          CHECKSUM_URL="https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_checksums.txt"
-
-          # Download Gitleaks tarball and checksums
-          echo "::group::Downloading Gitleaks v${VERSION}"
-          curl -sSL -o /tmp/gitleaks.tar.gz "${DOWNLOAD_URL}"
-          curl -sSL -o /tmp/checksums.txt "${CHECKSUM_URL}"
-          echo "::endgroup::"
-
-          # Extract expected checksum for Linux x64
-          EXPECTED_CHECKSUM=$(grep -w "gitleaks_${VERSION}_linux_x64.tar.gz" /tmp/checksums.txt | awk '{print $1}' | head -1)
-
-          # Calculate actual checksum
-          ACTUAL_CHECKSUM=$(sha256sum /tmp/gitleaks.tar.gz | awk '{print $1}')
-
-          # Display checksum comparison
-          echo "::group::Checksum verification"
-          echo "Expected: ${EXPECTED_CHECKSUM}"
-          echo "Actual:   ${ACTUAL_CHECKSUM}"
-          echo "::endgroup::"
-
-          # Verify checksums match
-          if [ "${EXPECTED_CHECKSUM}" != "${ACTUAL_CHECKSUM}" ]; then
-            echo "::error::Checksum verification failed! Downloaded file may be corrupted or tampered."
-            exit 1
-          fi
-
-          echo "✓ Checksum verification passed"
-
-          # Extract and install
-          echo "::group::Installing Gitleaks"
-          tar -xzf /tmp/gitleaks.tar.gz -C /tmp
-          sudo install -m 755 /tmp/gitleaks /usr/local/bin/gitleaks
-          echo "::endgroup::"
-
-          # Verify installation
-          echo "Installed version:"
-          gitleaks version
-
-          # Cleanup
-          rm -f /tmp/gitleaks.tar.gz /tmp/checksums.txt /tmp/gitleaks
+        uses: ./.github/actions/setup-gitleaks
+        with:
+          version: ${{ inputs.gitleaks-version }}
 
       # Step 4: Prepare report directory
       - name: Prepare report directory

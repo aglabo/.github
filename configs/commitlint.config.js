@@ -37,4 +37,4 @@ const baseConfig = {
 };
 
 // export
-export default baseConfig;
+module.exports = baseConfig;
