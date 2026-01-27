@@ -51,7 +51,7 @@ jobs:
 
       # Step 3: Setup ghalint binary
       - name: Setup ghalint
-        uses: ./.github/actions/setup-ghalint
+        uses: aglabo/.github/.github/actions/setup-ghalint@r1.1.0
         with:
           version: ${{ inputs.ghalint-version }}
 
