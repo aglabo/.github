@@ -1,12 +1,12 @@
-# src: ./.github/workflows/ci-scan-all.yml
-# @(#) : Caller workflow for all linting and scanning in .github repository
+# src: ./.github/workflows/ci-common-lint-actionlint.yml
+# @(#) : GitHub Actions workflow for actionlint validation
 #
-# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+# Copyright (c) 2025- atsushifx <https://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-name: "CI Scan All"
+name: CI Scan All
 
 # Minimal permissions following security best practices
 permissions:
