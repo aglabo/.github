@@ -57,7 +57,7 @@ jobs:
 
       # Step 3: Setup Gitleaks binary
       - name: Setup Gitleaks
-        uses: aglabo/.github/.github/actions/setup-gitleaks@r1.1.0
+        uses: aglabo/.github/.github/actions/setup-gitleaks@r1.1.1
         with:
           version: ${{ inputs.gitleaks-version }}
 
@@ -67,7 +67,7 @@ jobs:
 
       # Step 5: Run Gitleaks
       - name: Run Gitleaks
-        id: gitleaks
+        id: gitleaks-run
         run: |
           set +e
           gitleaks protect \
