@@ -125,7 +125,7 @@ jobs:
       # PR will auto-merge once all required checks pass
       - name: Create Pull Request with auto-merge
         if: steps.chmod.outputs.changed == 'true'
-        uses: ./.github/actions/create-pr-with-automerge
+        uses: aglabo/.github/.github/actions/create-pr-with-automerge@r1.2.0
         with:
           branch-prefix: "auto-chmod"
           source-branch: ${{ github.ref_name }}
