@@ -22,3 +22,17 @@ excludes:
     workflow_file_path: .github/workflows/ci-scan-all.yml
     job_name: scan-gitleaks
     action_name: aglabo/.github/.github/workflows/ci-common-scan-gitleaks.yml
+
+  # Allow version tags for composite actions instead of SHA pinning
+  - policy_name: action_ref_should_be_full_length_commit_sha
+    workflow_file_path: .github/workflows/ci-common-lint-actionlint.yml
+    job_name: actionlint
+    action_name: aglabo/.github/.github/actions/setup-actionlint
+  - policy_name: action_ref_should_be_full_length_commit_sha
+    workflow_file_path: .github/workflows/ci-common-lint-ghalint.yml
+    job_name: ghalint
+    action_name: aglabo/.github/.github/actions/setup-ghalint
+  - policy_name: action_ref_should_be_full_length_commit_sha
+    workflow_file_path: .github/workflows/ci-common-scan-gitleaks.yml
+    job_name: gitleaks
+    action_name: aglabo/.github/.github/actions/setup-gitleaks
