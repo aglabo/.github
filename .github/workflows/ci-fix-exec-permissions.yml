@@ -1,0 +1,151 @@
+# src: ./.github/workflows/ci-auto-chmod-scripts.yml
+# @(#) : Auto-fix shell script permissions on push
+#
+# Copyright (c) 2026- atsushifx <https://github.com/atsushifx>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: Fix executable permissions
+
+# Run on push to non-main branches to auto-fix permissions
+permissions:
+  contents: write
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+      - releases
+    paths:
+      - "**/*.sh"
+
+  workflow_dispatch:
+
+jobs:
+  auto-chmod:
+    name: Auto-fix shell script permissions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # cspell:words dorny
+      - name: Get changed shell scripts
+        id: changed-files
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          list-files: shell
+          filters: |
+            scripts:
+              - '**/*.sh'
+
+      # Check and fix permissions only for executable scripts (with shebang)
+      # Library/source files without shebang are skipped
+      - name: Check and fix shell script permissions
+        id: chmod
+        if: steps.changed-files.outputs.scripts_files != ''
+        run: |
+          sh_files="${{ steps.changed-files.outputs.scripts_files }}"
+
+          echo "Changed shell scripts to check:"
+          printf '%s\n' "$sh_files"
+
+          changed=0
+          changed_files=""
+          changed_count=0
+          skipped_count=0
+
+          # Check each file's permissions in git index
+          # shellcheck disable=SC2086
+          for file in $sh_files; do
+            # Get file mode from git index (format: 100644 or 100755)
+            mode=$(git ls-files -s "$file" | awk '{print $1}')
+
+            if [ -z "$mode" ]; then
+              echo "⚠️ Skipping $file (no git index entry)"
+              skipped_count=$((skipped_count + 1))
+              continue
+            fi
+
+            # Check if file has shebang (executable script indicator)
+            if ! head -n1 "$file" 2>/dev/null | grep -q '^#!'; then
+              echo "ℹ️ Skipping $file (no shebang - likely a library/source file)"
+              skipped_count=$((skipped_count + 1))
+              continue
+            fi
+
+            if [ "$mode" = "100644" ]; then
+              echo "Setting +x on $file (was $mode)"
+              git update-index --chmod=+x "$file"
+
+              # Accumulate changed files (newline-separated)
+              if [ -z "$changed_files" ]; then
+                changed_files="$file"
+              else
+                changed_files="${changed_files}"$'\n'"${file}"
+              fi
+
+              changed_count=$((changed_count + 1))
+              changed=1
+            elif [ "$mode" = "100755" ]; then
+              echo "✓ $file already executable"
+            fi
+          done
+
+          # Output results
+          if [ "$changed" -eq 1 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$changed" -eq 1 ]; then
+            {
+              echo "changed_files<<EOF"
+              echo "$changed_files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+            echo "changed_count=$changed_count" >> "$GITHUB_OUTPUT"
+            echo "✓ Fixed permissions on $changed_count shell script(s)"
+            [ "$skipped_count" -gt 0 ] && echo "ℹ️ Skipped $skipped_count file(s) (no shebang or no index entry)"
+          else
+            echo "✓ All changed shell scripts already have correct permissions"
+            [ "$skipped_count" -gt 0 ] && echo "ℹ️ Skipped $skipped_count file(s) (no shebang or no index entry)"
+          fi
+
+      # Bot-generated PR with auto-merge enabled (squash method)
+      # PR will auto-merge once all required checks pass
+      - name: Create Pull Request with auto-merge
+        if: steps.chmod.outputs.changed == 'true'
+        uses: ./.github/actions/create-pr-with-automerge
+        with:
+          branch-prefix: "auto-chmod"
+          source-branch: ${{ github.ref_name }}
+          pr-title: "[Bot] ci(scripts): Fix shell script permissions"
+          pr-body: |
+            ## Auto-generated PR: Shell Script Permission Fix
+
+            This PR automatically fixes executable permissions on shell scripts that were modified in `${{ github.ref_name }}`.
+
+            ### Changes
+            - Sets `+x` (executable) permission on `.sh` files with mode `100644`
+            - Uses `git update-index --chmod=+x` to update git index
+
+            ### Files Modified
+            ```
+            ${{ steps.chmod.outputs.changed_files }}
+            ```
+
+            ---
+            🤖 Auto-generated by [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          labels: "automated,chore"
+          merge-method: "squash"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
