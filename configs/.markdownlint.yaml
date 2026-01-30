@@ -26,3 +26,8 @@ strong-style:
 
 # Tabs
 no-hard-tabs: true
+
+# Tables
+# Table columns
+table-column-style:
+  style: aligned
