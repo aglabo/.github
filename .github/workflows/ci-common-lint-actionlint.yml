@@ -23,7 +23,7 @@ on:
         required: false
       actionlint-version:
         type: string
-        default: "1.7.8"
+        default: "1.7.10"
         description: "actionlint version to install"
         required: false
 
@@ -51,7 +51,7 @@ jobs:
 
       # Step 3: Setup actionlint binary
       - name: Setup actionlint
-        uses: aglabo/.github/.github/actions/setup-actionlint@r1.1.1
+        uses: aglabo/.github/.github/actions/setup-actionlint@r1.1.2
         with:
           version: ${{ inputs.actionlint-version }}
 

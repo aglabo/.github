@@ -1,8 +1,7 @@
 // src: .vscode/cspell.json
 // @(#) : cspell config for user-centric settings
 //
-//
-// Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+// Copyright (c) 2025- atsushifx <https://github.com/atsushifx>
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -40,6 +39,7 @@
     "vim",
     // user defined dictionaries
     "user-dic",
+    "textlint-dic",
     "project-dic"
   ],
   "useGitignore": true
