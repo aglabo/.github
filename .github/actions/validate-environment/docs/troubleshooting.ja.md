@@ -392,6 +392,68 @@ jobs:
 
 ポイント: `env:` は `with:` と同じレベル（ステップの直下）に配置。
 
+### デバッグ手順
+
+エラーが発生した場合、以下を順番に確認してください:
+
+#### 1. env: GH_TOKEN の存在確認
+
+**確認項目**:
+
+- [ ] ステップまたはジョブレベルで `env: GH_TOKEN: ${{ github.token }}` が設定されているか
+- [ ] インデント（YAML 構文）が正しいか
+- [ ] `env:` が `with:` の子要素になっていないか
+
+**確認方法**:
+
+ワークフローファイルを開き、以下の構造になっているか確認:
+
+```yaml
+- uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  with:
+    additional_apps: "..."
+  env: # ← with と同じレベル
+    GH_TOKEN: ${{ github.token }}
+```
+
+#### 2. トークンの利用可能性確認
+
+**確認項目**:
+
+- [ ] `${{ github.token }}` が利用可能か（通常は自動的に提供される）
+- [ ] リポジトリ設定で "Workflow permissions" が有効か
+
+**確認方法**:
+
+1. GitHub リポジトリの **Settings** タブを開く
+2. **Actions** > **General** を選択
+3. **Workflow permissions** セクションを確認
+   - "Read and write permissions" または "Read repository contents and packages permissions" が選択されているか
+
+**デフォルト**: ほとんどのリポジトリで有効。
+
+#### 3. ワークフローログの確認
+
+**確認項目**:
+
+- [ ] Actions タブで失敗したワークフローを開く
+- [ ] "Validate Environment" ステップのログを確認
+- [ ] `gh auth status` の出力を確認
+
+**確認方法**:
+
+1. GitHub リポジトリの **Actions** タブを開く
+2. 失敗したワークフローをクリック
+3. "Validate Environment" ステップを展開
+4. エラーメッセージを確認:
+
+   ```text
+   ::error::gh is not authenticated. Run 'gh auth login' or set GH_TOKEN
+   ::error::To resolve: Add 'env: GH_TOKEN: ${{ github.token }}' to your workflow step
+   ```
+
+5. エラーメッセージに従って修正
+
 ### 関連セクション
 
 - [README.ja.md - gh CLI 特殊処理](../README.ja.md#gh-cli-特殊処理) - 認証メカニズムの詳細
@@ -437,6 +499,65 @@ GitHub Actions 外でスクリプトを実行すると、明確なエラーメ�
    - プリインストールされたツール (Git, curl, gh, GNU coreutils)
 
 これらはローカル環境では利用できません。
+
+### テスト方法
+
+ローカルでテストする代わりに、以下の方法を使用してください:
+
+#### 1. プルリクエストで検証
+
+```yaml
+# .github/workflows/validate.yml
+name: Validate Environment
+
+on: [pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/validate-environment
+```
+
+#### 2. 手動トリガー (workflow_dispatch)
+
+```yaml
+name: Manual Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      architecture:
+        description: "Architecture to validate"
+        required: false
+        default: "amd64"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/validate-environment
+        with:
+          architecture: ${{ github.event.inputs.architecture }}
+```
+
+#### 3. act による疑似ローカル実行（制限あり）
+
+[act](https://github.com/nektos/act) を使用すると、ローカルで GitHub Actions をシミュレートできます。
+
+```bash
+# act のインストール
+brew install act  # macOS
+# または
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# ワークフローを実行
+act -j validate
+```
+
+注意: act は完全な GitHub Actions 環境を再現できません。`RUNNER_ENVIRONMENT=github-hosted` チェックは失敗する可能性があります。
 
 ## まとめ
 
