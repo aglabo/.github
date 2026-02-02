@@ -19,8 +19,7 @@
 #   3. gh (GitHub CLI) is installed (version 2.0+ required)
 #
 #   **Features:**
-#   - Fail-fast mode (default): exits immediately on first error
-#   - Collect-errors mode (FAIL_FAST=false): validates all apps before failing
+#   - Gate action design: exits immediately on first validation error
 #   - Generic version checking using sort -V (handles semver, prerelease, etc.)
 #   - Safe declarative version extraction (NO EVAL)
 #   - Backward compatible with field-number extraction (legacy)
@@ -28,13 +27,15 @@
 #   - Extensible: additional applications can be specified as arguments
 #
 #   **Version Extraction (Security Hardened):**
-#   - Legacy: "N" = Nth field (backward compatible)
-#   - sed pattern = sed -E regex with capture group (\1)
-#   - NO eval usage - sed only, safe and auditable
-#   - Examples: "version ([0-9.]+)" extracts version number from "git version 2.52.0"
+#   - Prefix-typed extractors: field:N or regex:PATTERN (explicit method declaration)
+#   - sed-only with # delimiter (allows / in patterns)
+#   - NO eval usage - prevents arbitrary code execution
+#   - Input validation: Rejects shell metacharacters, control chars, sed delimiter (#)
+#   - sed injection prevention: # character rejection prevents breaking out of pattern
+#   - Examples: "regex:version ([0-9.]+)" extracts version number from "git version 2.52.0"
 #
 #   **Environment Variables:**
-#   - FAIL_FAST: "true" (default) = exit on first error, "false" = collect all errors
+#   - FAIL_FAST: Internal implementation detail (always true for gate behavior)
 #   - GITHUB_OUTPUT: Output file for GitHub Actions (optional, fallback to /dev/null)
 #
 #   **Outputs (machine-readable):**
@@ -57,11 +58,12 @@ set -euo pipefail
 # Safe output file handling - fallback to /dev/null if not in GitHub Actions
 GITHUB_OUTPUT_FILE="${GITHUB_OUTPUT:-/dev/null}"
 
-# Fail-fast mode: exit immediately on first error (default: true)
-# Set to false to collect all errors before failing
+# Fail-fast mode: INTERNAL ONLY (not exposed as action input)
+# This action is a gate - errors mean the workflow cannot continue
+# Always defaults to true (fail on first error)
 FAIL_FAST="${FAIL_FAST:-true}"
 
-# Error tracking for collect-errors mode
+# Error tracking (used only when FAIL_FAST=false for internal testing/debugging)
 declare -a VALIDATION_ERRORS=()
 
 # Validated applications (populated by validate_apps function)
@@ -123,6 +125,25 @@ extract_version_number() {
         return 1
       fi
 
+      # Security: Validate regex pattern to prevent injection
+      # Reject our delimiter (#) to prevent breaking out of sed pattern
+      if [[ "$argument" == *"#"* ]]; then
+        echo "::error::Regex pattern cannot contain '#' character (reserved as sed delimiter): $argument" >&2
+        return 1
+      fi
+
+      # Reject shell metacharacters that shouldn't appear in version extraction regex
+      if [[ "$argument" =~ [\;\|\&\$\`\\] ]]; then
+        echo "::error::Regex pattern contains dangerous shell metacharacters: $argument" >&2
+        return 1
+      fi
+
+      # Reject newlines and control characters
+      if [[ "$argument" =~ $'\n'|$'\r'|$'\t' ]]; then
+        echo "::error::Regex pattern contains control characters" >&2
+        return 1
+      fi
+
       local extracted
       extracted=$(echo "$full_version" | sed -E "s#${argument}#\1#")
 
@@ -181,6 +202,19 @@ validate_apps() {
     # Parse app definition: cmd|app_name|version_extractor|min_version
     # Fixed 4-element format with pipe delimiter (no regex conflicts)
     IFS='|' read -r cmd app_name version_extractor min_ver <<< "$app_def"
+
+    # Security: Validate command name (reject shell metacharacters)
+    if [[ "$cmd" =~ [\;\|\&\$\`\(\)\ \t] ]]; then
+      echo "::error::Invalid command name contains shell metacharacters: $cmd" >&2
+      if [ "$FAIL_FAST" = "true" ]; then
+        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
+        echo "message=Invalid command name: $cmd" >> "$GITHUB_OUTPUT_FILE"
+        exit 1
+      else
+        VALIDATION_ERRORS+=("Invalid command name: $cmd")
+        continue
+      fi
+    fi
 
     # Check if command exists (avoid subshell to preserve VALIDATION_ERRORS array)
     echo "Checking ${app_name}..." >&2
@@ -265,7 +299,6 @@ echo ""
 declare -a DEFAULT_APPS=(
   "git|Git|field:3|2.30"                   # Extract 3rd field, check min 2.30
   "curl|curl||"                            # No version check
-  "gh|gh|regex:version ([0-9.]+)|2.0"      # sed regex format
 )
 
 # Always check default apps, add command line arguments if provided
