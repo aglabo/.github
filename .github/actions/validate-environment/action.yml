@@ -7,7 +7,12 @@
 # https://opensource.org/licenses/MIT
 
 name: "Validate Environment"
-description: "Validate GitHub Actions runner environment (Linux only: AMD64/ARM64, Git, curl, optional apps)"
+description: |
+  Validate GitHub Actions runner environment.
+  REQUIREMENTS: Linux only, GitHub-hosted runners only (ubuntu-latest, ubuntu-22.04, etc.)
+  NOT SUPPORTED: Windows, macOS, self-hosted runners
+  (Note: ARM64 validated on Linux if GitHub provides ARM64 runners)
+  Validates: OS/architecture, Git, curl, optional applications
 author: "aglabo"
 
 branding:
@@ -67,6 +72,11 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # Output mechanism:
+    # 1. Scripts write to $GITHUB_OUTPUT (key=value format)
+    # 2. Outputs automatically available as steps.<step-id>.outputs.<key>
+    # 3. Top-level outputs: section references step outputs for external access
+
     - name: "Validate OS and environment variables"
       id: validate-os
       shell: bash
@@ -75,6 +85,7 @@ runs:
       run: |
         set -euo pipefail
         "${GITHUB_ACTION_PATH}/scripts/validate-git-runner.sh"
+      # Outputs: status, message (written to $GITHUB_OUTPUT by script)
 
     - name: "Validate required applications"
       id: validate-apps
@@ -86,3 +97,4 @@ runs:
         else
           "${GITHUB_ACTION_PATH}/scripts/validate-apps.sh"
         fi
+      # Outputs: status, message, validated_apps, validated_count, failed_apps, failed_count
