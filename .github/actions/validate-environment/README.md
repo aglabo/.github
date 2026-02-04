@@ -218,7 +218,7 @@ jobs:
           # Your workflow using gh CLI
 ```
 
-**Note**: Without `env: GH_TOKEN`, `gh auth status` check will fail with "gh is not authenticated" error. See [gh CLI Special Handling](#gh-cli-special-handling) and [Troubleshooting](#error-gh-is-not-authenticated) for details.
+**Note**: Without `env: GH_TOKEN`, `gh auth status` check will fail with "gh is not authenticated" error. See [gh CLI Special Handling](#gh-cli-special-handling) and [Troubleshooting](docs/troubleshooting.md) for details.
 
 #### Example 3: Multiple Applications Validation
 
@@ -383,7 +383,7 @@ IMPORTANT: The `env:` section must be specified at the step level. It can also b
 
 There are 3 scenarios for gh CLI validation:
 
-**Scenario 1: With GH_TOKEN (Normal)**
+Scenario 1: With GH_TOKEN (Normal)
 
 ```yaml
 - name: Validate with gh CLI
@@ -394,13 +394,13 @@ There are 3 scenarios for gh CLI validation:
     GH_TOKEN: ${{ github.token }}
 ```
 
-**Result**:
+Result:
 
 - `gh auth status` succeeds (exit code 0)
 - Validation succeeds: `apps-status: success`
 - Workflow steps using gh CLI work correctly
 
-**Scenario 2: Without GH_TOKEN (Error)**
+Scenario 2: Without GH_TOKEN (Error)
 
 ```yaml
 - name: Validate with gh CLI (incorrect configuration)
@@ -410,21 +410,21 @@ There are 3 scenarios for gh CLI validation:
   # env: GH_TOKEN not specified
 ```
 
-**Result**:
+Result:
 
 - `gh auth status` fails (exit code 1)
 - Error: `"gh is not authenticated. Run 'gh auth login' or set GH_TOKEN"`
 - Validation fails: `apps-status: error`
 - Workflow stops
 
-**Error message example**:
+Error message example:
 
 ```text
 ::error::gh is not authenticated. Run 'gh auth login' or set GH_TOKEN
 ::error::To resolve: Add 'env: GH_TOKEN: ${{ github.token }}' to your workflow step
 ```
 
-**Scenario 3: Not using gh CLI (No impact)**
+Scenario 3: Not using gh CLI (No impact)
 
 ```yaml
 - name: Validate without gh CLI
@@ -432,7 +432,7 @@ There are 3 scenarios for gh CLI validation:
   # additional_apps not specified or doesn't include gh
 ```
 
-**Result**:
+Result:
 
 - No authentication check performed (gh CLI not specified)
 - GH_TOKEN not required
