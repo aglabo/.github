@@ -15,6 +15,7 @@ Copyright
 
 <!-- textlint-disable ja-technical-writing/sentence-length -->
 <!-- textlint-disable ja-technical-writing/max-comma -->
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->s
 <!-- markdownlint-disable line-length -->
 
 ## 概要
@@ -25,9 +26,20 @@ Copyright
 
 検証項目: OS (Linux)、アーキテクチャ (amd64/arm64)、ランナータイプ (GitHub-hosted)、バージョン要件を持つ必須アプリケーション。
 
+## 読者ガイド
+
+- とりあえず使いたい人:
+  → [使用方法](#使用方法) の「基本例」を参照してください
+- gh CLI を使いたい人:
+  → [gh CLI 特殊処理](#gh-cli-特殊処理) を必ず読んでください
+- 内部仕様を知りたい人:
+  → [docs/abi.ja.md](docs/abi.ja.md) (開発者向け技術仕様) を参照してください
+
 ## 前提条件
 
 重要: このアクションは特定のランタイム条件を必要とし、満たされない場合は失敗します。
+
+開発者向けの詳細な技術仕様は [docs/abi.ja.md](docs/abi.ja.md) を参照してください。
 
 ### 必須環境
 
@@ -52,6 +64,59 @@ Copyright
 
 追加のアプリケーションは `additional_apps` 入力で検証できます。
 
+> 注意:
+> gh CLI が検証される場合、`gh auth status` による認証チェックが自動的に実行されます。
+
+## ABI と契約
+
+> 対象読者:
+> 開発者、メンテナー、内部動作を理解する必要がある技術者
+
+**通常のワークフロー作成者はこのセクションをスキップしてください。**
+
+このアクションは明確に定義された ABI (Application Binary Interface) 契約に基づいて動作します。
+
+### 契約の種類
+
+1. **内部 ABI 要件**: Linux、bash、GNU coreutils などのランタイム依存関係
+2. **入力契約**: ワークフロー入力 (`architecture`, `additional-apps`) がスクリプトに渡される方法
+3. **出力契約**: 検証ステータスに応じた出力の条件付き設定
+4. **セキュリティモデル**: sed のみの抽出、入力検証、インジェクション防止
+
+### 詳細ドキュメント
+
+完全な技術仕様は **[docs/abi.ja.md](docs/abi.ja.md)** を参照してください。
+
+以下のトピックが含まれます。
+
+- 内部 ABI 要件の詳細（OS、シェル、coreutils、環境変数）
+- 入力契約の実装例（`architecture` → `EXPECTED_ARCHITECTURE`、`additional-apps` → 位置引数）
+- 出力契約の 3 つのシナリオ（OS 失敗、アプリ失敗、すべて成功）
+- セキュリティモデルの詳細（脅威モデル、入力検証、sed のみの抽出、インジェクション防止）
+
+### 重要なポイント（概要）
+
+#### 出力の条件付き設定
+
+- OS 検証失敗時: `runner-status`, `runner-message` のみ設定（アプリ検証は実行されない）
+- アプリ検証失敗時: すべての出力が設定されるが、`validated-apps`/`validated-count` は未定義
+- すべて成功時: すべての出力が設定される
+
+ワークフローで出力を参照する前に、必ず `apps-status` をチェックしてください。
+
+```yaml
+- name: Use outputs
+  if: steps.validate.outputs.apps-status == 'success'
+  run: |
+    echo "Validated: ${{ steps.validate.outputs.validated-apps }}"
+```
+
+#### セキュリティ
+
+- eval は一切使用されません - すべてのバージョン抽出は sed のみで実行
+- 危険な文字 (`;`, `|`, `&`, `$`, `` ` ``, `\`, `#`) を含む入力は拒否
+- sed は独立したプロセスとして実行され、コマンドインジェクションは発生しない
+
 ## 設計原則
 
 このアクションは aglabo CI インフラストラクチャのために以下の原則を体現しています。
@@ -74,6 +139,7 @@ Copyright
    - sed ベースの抽出のみ (eval 不使用)
    - 入力検証によりコマンドインジェクションを防止
    - シェルメタ文字と制御文字を拒否
+   - 詳細: [docs/abi.ja.md - セキュリティモデル](docs/abi.ja.md#セキュリティモデル) を参照
 
 5. **破壊的変更検出**
    - GitHub が `RUNNER_ENVIRONMENT` 仕様を変更した場合は意図的に失敗
@@ -96,15 +162,17 @@ steps:
 
 ### 完全なワークフロー例
 
-```yaml
-name: Example Workflow
+#### 例 1: 基本検証 (Git と curl のみ)
 
-on:
-  push:
-    branches: [main]
+デフォルトでは Git と curl を検証します。GH_TOKEN は不要です。
+
+```yaml
+name: Basic Validation
+
+on: [push]
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -114,13 +182,80 @@ jobs:
         uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
         with:
           architecture: "amd64"
-          additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0 node|Node.js|regex:v([0-9.]+)|18.0"
 
       - name: Continue with validated environment
+        run: |
+          echo "Environment validated: Git and curl ready"
+```
+
+#### 例 2: gh CLI を含む検証
+
+重要: gh CLI を検証する場合、必ず `env: GH_TOKEN` を設定してください。
+
+```yaml
+name: Validation with gh CLI
+
+on: [push]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Environment with gh CLI
+        id: validate
+        uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+        with:
+          architecture: "amd64"
+          additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+        env:
+          GH_TOKEN: ${{ github.token }} # ← gh CLI 認証に必須
+
+      - name: Use gh CLI
         if: steps.validate.outputs.apps-status == 'success'
         run: |
-          echo "Environment validated successfully"
-          # Your workflow steps here
+          gh --version
+          # gh CLI を使用したワークフロー
+```
+
+注意: `env: GH_TOKEN` がない場合、`gh auth status` チェックが失敗し、"gh is not authenticated" エラーが発生します。詳細は [gh CLI 特殊処理](#gh-cli-特殊処理) および [トラブルシューティング](#エラー-gh-is-not-authenticated) を参照してください。
+
+#### 例 3: 複数アプリケーションの検証
+
+gh CLI と Node.js を同時に検証する例:
+
+```yaml
+name: Multi-App Validation
+
+on: [push]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Validate Environment
+        id: validate
+        uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+        with:
+          architecture: "amd64"
+          additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0 node|Node.js|regex:v([0-9.]+)|18.0"
+        env:
+          GH_TOKEN: ${{ github.token }} # ← gh CLI に必須
+
+      - name: Use validated tools
+        if: steps.validate.outputs.apps-status == 'success'
+        run: |
+          echo "Validated apps: ${{ steps.validate.outputs.validated-apps }}"
+          gh --version
+          node --version
 ```
 
 ## 設定
@@ -181,25 +316,187 @@ DSL ルール:
 例:
 
 ```yaml
-# 単一アプリケーション
+# 単一アプリケーション (gh CLI)
 additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
 
-# 複数アプリケーション
+# 複数アプリケーション (gh CLI + Node.js)
 additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0 node|Node.js|regex:v([0-9.]+)|18.0"
 
 # よく使われるアプリケーション
-# - GitHub CLI: "gh|gh|regex:version ([0-9.]+)|2.0"
+# - GitHub CLI: "gh|gh|regex:version ([0-9.]+)|2.0" (認証チェック含む)
 # - Node.js: "node|Node.js|regex:v([0-9.]+)|18.0"
 # - Python: "python|Python||3.8"
 # - Docker: "docker|Docker|regex:version ([0-9.]+)|20.0"
 ```
 
+> **gh CLI を使用する場合の重要な注意事項**: gh CLI を `additional_apps` で指定する場合、ワークフローステップに `env: GH_TOKEN: ${{ github.token }}` を追加してください。これがないと、gh の認証チェック (`gh auth status`) が失敗します。詳細は [gh CLI 特殊処理](#gh-cli-特殊処理) を参照してください。
+
+#### gh CLI 特殊処理
+
+gh CLI (GitHub CLI) は他のアプリケーションと異なり、**認証チェック**が自動的に実行されます。
+
+##### 認証メカニズム
+
+gh CLI が `additional_apps` で指定されている場合、validate-apps.sh は以下のチェックを実行します。
+
+1. **存在チェック**: `command -v gh` で gh CLI が存在するか確認
+2. **バージョンチェック**: `gh --version` で最小バージョン要件を確認
+3. **認証チェック**: `gh auth status` で認証状態を確認
+
+**認証チェックの実装** (validate-apps.sh:248-256):
+
+```bash
+check_gh_authentication() {
+  # Check authentication status using gh auth status
+  # Exit code 0 = authenticated, 1 = not authenticated or auth issues
+  gh auth status >/dev/null 2>&1
+  return $?
+}
+```
+
+このチェックは gh CLI に対してのみ実行されます。他のアプリケーション (node、python など) には認証チェックはありません。
+
+##### GH_TOKEN 要件
+
+GitHub Actions では、`gh auth status` が成功するために **GH_TOKEN 環境変数** が必要です。
+
+**理由**:
+
+- GitHub Actions ランナーには gh CLI がプリインストールされています
+- しかし、デフォルトでは認証情報が設定されていません
+- `gh` コマンドは `GH_TOKEN` 環境変数から認証トークンを読み取ります
+- GitHub Actions は自動的に `github.token` コンテキストを提供しますが、明示的に渡す必要があります
+
+**必須の設定**:
+
+```yaml
+- name: Validate with gh CLI
+  uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  with:
+    additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+  env:
+    GH_TOKEN: ${{ github.token }} # ← これがないと認証チェックが失敗
+```
+
+重要: `env:` セクションはステップレベルで指定してください。ジョブレベルでも指定できますが、セキュリティのベストプラクティスとして、トークンを必要とするステップのみに制限することを推奨します。
+
+##### 認証シナリオ
+
+gh CLI 検証には 3 つのシナリオがあります:
+
+**シナリオ 1: GH_TOKEN あり (正常)**
+
+```yaml
+- name: Validate with gh CLI
+  uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  with:
+    additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+  env:
+    GH_TOKEN: ${{ github.token }}
+```
+
+**結果**:
+
+- `gh auth status` が成功 (exit code 0)
+- 検証成功: `apps-status: success`
+- gh CLI を使用したワークフローステップが正常に動作
+
+**シナリオ 2: GH_TOKEN なし (エラー)**
+
+```yaml
+- name: Validate with gh CLI (誤った設定)
+  uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  with:
+    additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+  # env: GH_TOKEN が指定されていない
+```
+
+**結果**:
+
+- `gh auth status` が失敗 (exit code 1)
+- エラー: `"gh is not authenticated. Run 'gh auth login' or set GH_TOKEN"`
+- 検証失敗: `apps-status: error`
+- ワークフローが停止
+
+**エラーメッセージ例**:
+
+```text
+::error::gh is not authenticated. Run 'gh auth login' or set GH_TOKEN
+::error::To resolve: Add 'env: GH_TOKEN: ${{ github.token }}' to your workflow step
+```
+
+**シナリオ 3: gh CLI を使用しない (影響なし)**
+
+```yaml
+- name: Validate without gh CLI
+  uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  # additional_apps を指定しない、または gh を含まない
+```
+
+**結果**:
+
+- 認証チェックは実行されない (gh CLI が指定されていないため)
+- GH_TOKEN は不要
+- デフォルトの Git と curl のみ検証
+
+##### トラブルシューティング
+
+**"gh is not authenticated" エラーが発生した場合**:
+
+最も一般的な原因は `env: GH_TOKEN` の設定忘れです。
+
+**クイック解決策**:
+
+```yaml
+- uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+  with:
+    additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+  env:
+    GH_TOKEN: ${{ github.token }} # ← これを追加
+```
+
+詳細なトラブルシューティング手順、よくある誤り、デバッグ方法は **[docs/troubleshooting.ja.md - gh CLI 関連のトラブルシューティング](docs/troubleshooting.ja.md#gh-cli-関連のトラブルシューティング)** を参照してください。
+
+##### セキュリティに関する注意事項
+
+**GH_TOKEN のスコープ**:
+
+- `github.token` は GitHub Actions が自動生成するトークン
+- リポジトリのコンテンツへの読み取り/書き込みアクセスのみ
+- ユーザーアカウント全体へのアクセスはなし
+- ワークフロー実行後に自動的に無効化
+
+**ベストプラクティス**:
+
+1. **最小権限の原則**: gh CLI を使用するステップのみに GH_TOKEN を渡す
+2. **ログに出力しない**: トークンはログに記録されません (GitHub が自動的にマスク)
+3. **カスタムトークンの使用**: より強い権限が必要な場合は、`secrets.MY_CUSTOM_TOKEN` を使用
+
+例 (最小権限):
+
+```yaml
+steps:
+  # このステップには GH_TOKEN 不要
+  - name: Validate basic environment
+    uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+
+  # このステップのみ GH_TOKEN を使用
+  - name: Validate with gh CLI
+    uses: aglabo/.github-aglabo/.github/actions/validate-environment@main
+    with:
+      additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+    env:
+      GH_TOKEN: ${{ github.token }} # ← このステップのみスコープを持つ
+```
+
+詳細は [docs/troubleshooting.ja.md - gh CLI 関連のトラブルシューティング](docs/troubleshooting.ja.md#gh-cli-関連のトラブルシューティング) を参照してください。
+
 ### 出力
 
 | 出力              | 型     | 説明                                                       |
 | ----------------- | ------ | ---------------------------------------------------------- |
-| `os-status`       | string | OS 検証ステータス: `success` または `error`                |
-| `os-message`      | string | OS 検証メッセージ (OS タイプ、アーキテクチャなど)          |
+| `runner-status`   | string | OS 検証ステータス: `success` または `error`                |
+| `runner-message`  | string | OS 検証メッセージ (OS タイプ、アーキテクチャなど)          |
 | `apps-status`     | string | アプリケーション検証ステータス: `success` または `error`   |
 | `apps-message`    | string | アプリケーション検証メッセージ                             |
 | `validated-apps`  | string | 検証されたアプリ名のカンマ区切りリスト (例: `Git,curl,gh`) |
@@ -209,29 +506,33 @@ additional_apps: "gh|gh|regex:version ([0-9.]+)|2.0 node|Node.js|regex:v([0-9.]+
 
 #### 出力動作 (ゲートアクション)
 
-このアクションは最初のエラーで即座に失敗します。出力の利用可能性:
+このアクションは最初のエラーで即座に失敗します。出力の利用可能性は検証ステータスによって条件付きで設定されます。
 
-- OS 検証が失敗: `os-status` と `os-message` のみ設定 (アプリ検証は実行されない)
-- アプリ検証が失敗: すべての出力が設定され、`os-status=success`、`apps-status=error`
+詳細な契約仕様は [docs/abi.ja.md - 出力契約](docs/abi.ja.md#出力契約) を参照してください。
+
+**概要**:
+
+- OS 検証が失敗: `runner-status` と `runner-message` のみ設定 (アプリ検証は実行されない)
+- アプリ検証が失敗: すべての出力が設定され、`runner-status=success`、`apps-status=error`
 - 両方成功: すべての出力が成功ステータスを示す
 
 例:
 
 ```text
 # 成功
-os-status: success
-os-message: GitHub runner validated: Linux amd64, github-hosted
+runner-status: success
+runner-message: GitHub runner validated: Linux amd64, github-hosted
 apps-status: success
 apps-message: Applications validated: Git git version 2.45.0, curl curl 7.88.1
 validated-apps: Git,curl
 validated-count: 2
 
 # 失敗 (非サポート OS)
-os-status: error
-os-message: Unsupported OS: darwin (Linux required)
+runner-status: error
+runner-message: Unsupported OS: darwin (Linux required)
 
 # 失敗 (アプリケーションが見つからない)
-os-status: success
+runner-status: success
 apps-status: error
 apps-message: Git not exist
 failed-count: 1
@@ -248,7 +549,9 @@ failed-count: 1
 
 ## 検証詳細
 
-アクションは以下のチェックを順番に実行します:
+アクションは以下のチェックを順番に実行します。
+
+入力がどのように内部スクリプトに渡されるかの詳細は [docs/abi.ja.md - 入力契約](docs/abi.ja.md#入力契約) を参照してください。
 
 ### 1. オペレーティングシステム
 
@@ -275,63 +578,34 @@ failed-count: 1
 - デフォルト: `git` (バージョン < 2.30 の場合は警告)、`curl` (任意のバージョン)
 - 追加: `additional_apps` 入力で指定されたアプリケーション
 
-## 制限事項とトラブルシューティング
+## 制限事項
 
 ### このアクションが行わないこと
 
-- ランナーの選択やプロビジョニングを行いません - それには `runs-on` を使用
-- アプリケーションのインストールを行いません - それには `actions/setup-node` などを使用
-- 以下をサポートしません:
-  - Windows ランナー (`windows-latest` など)
-  - macOS ランナー (`macos-latest`、`macos-14` など)
-  - セルフホストランナー (`RUNNER_ENVIRONMENT=github-hosted` が必須)
-  - ローカル実行 (GitHub Actions 環境が必須)
+- ランナーの選択やプロビジョニング - それには `runs-on` を使用
+- アプリケーションのインストール - それには `actions/setup-node` などを使用
 
-### ARM64 アーキテクチャに関する注記
+### サポートしていない環境
 
-このアクションのコードは Linux での ARM64 (aarch64) 検証をサポートしています。
-ただし、以下の制限があります。
+- Windows ランナー (`windows-latest` など)
+- macOS ランナー (`macos-latest`、`macos-14` など)
+- セルフホストランナー（`RUNNER_ENVIRONMENT=github-hosted` が必須）
+- ローカル実行（GitHub Actions 環境が必須）
 
-- macOS ARM ランナー (macos-14 M1/M2) は拒否されます (macOS 非サポート)
-- Linux ARM64 ランナーは、GitHub が提供すれば動作します
-- 2026 年現在、GitHub は Linux ARM64 ホストランナーを提供していません
-- GitHub が将来追加した場合、このアクションは `architecture: "arm64"` でコード変更なしに動作します
+### よくあるエラー
 
-テスト済み: AMD64 (ubuntu-latest、ubuntu-22.04、ubuntu-20.04)
+| エラー                         | 解決策                          |
+| ------------------------------ | ------------------------------- |
+| "Unsupported operating system" | `runs-on: ubuntu-latest` に変更 |
+| "Git is not installed"         | GitHub-hosted ランナーを使用    |
+| "gh is not authenticated"      | `env: GH_TOKEN` を追加          |
 
-### よくあるエラーと解決策
+### 詳細なトラブルシューティング
 
-#### エラー: "Unsupported operating system"
-
-```text
-::error::Unsupported operating system: darwin
-::error::This action requires Linux
-::error::Please use a Linux runner (e.g., ubuntu-latest)
-```
-
-解決策: ワークフローを Linux ランナーを使用するように変更: `runs-on: ubuntu-latest`
-
-#### エラー: "Not running in GitHub Actions environment"
-
-```text
-::error::Not running in GitHub Actions environment
-::error::This action must run in a GitHub Actions workflow
-::error::GITHUB_ACTIONS environment variable is not set to 'true'
-```
-
-解決策: このアクションは GitHub Actions ワークフロー内でのみ実行されます。スクリプトをローカルで実行しないでください。
-
-#### エラー: "Git is not installed"
-
-```text
-::error::Git is not installed
-```
-
-解決策: Git がプリインストールされたランナーを使用してください (すべての GitHub-hosted ランナーには Git が含まれています)。
-
-### ローカル実行
-
-GitHub Actions 外でスクリプトを実行すると、明確なエラーメッセージで失敗します。検証スクリプトをローカルで実行しないでください - これらは GitHub Actions ワークフロー専用に設計されています。
+- 制限事項の詳細 → [docs/troubleshooting.ja.md - 制限事項](docs/troubleshooting.ja.md#制限事項)
+- エラーの詳細と解決策 → [docs/troubleshooting.ja.md - よくあるエラーと解決策](docs/troubleshooting.ja.md#よくあるエラーと解決策)
+- gh CLI エラー → [docs/troubleshooting.ja.md - gh CLI 関連のトラブルシューティング](docs/troubleshooting.ja.md#gh-cli-関連のトラブルシューティング)
+- ローカル実行 → [docs/troubleshooting.ja.md - ローカル実行](docs/troubleshooting.ja.md#ローカル実行)
 
 ## ライセンス
 
@@ -346,5 +620,4 @@ Copyright (c) 2026- aglabo
 問題や質問がある場合:
 
 - [.github-aglabo リポジトリ](https://github.com/aglabo/.github-aglabo/issues) で Issue を開く
-- `.serena/memories/` の既存ドキュメントを確認
 - `.github/workflows/` のワークフロー例を確認
