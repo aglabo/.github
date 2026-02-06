@@ -27,7 +27,7 @@ inputs:
   additional-apps:
     description: |
       Additional applications to validate beyond default (Git, curl).
-      Format: Space-separated list of pipe-delimited (|) definitions.
+      Format: Newline-separated list of pipe-delimited (|) definitions.
       Each definition: cmd|app_name|version_extractor|min_version
 
       version_extractor types (prefix-typed, safe sed-only):
@@ -37,7 +37,11 @@ inputs:
 
       min_version: Minimum required version (empty = skip check, show warning)
 
-      Example: "gh|gh|regex:version ([0-9.]+)|2.0 node|Node.js|regex:v([0-9.]+)|18.0"
+      Single app: "gh|gh|regex:version ([0-9.]+)|2.0"
+      Multiple apps (use YAML multiline string):
+        additional-apps: |
+          gh|gh|regex:version ([0-9.]+)|2.0
+          node|Node.js|regex:v([0-9.]+)|18.0
 
       Security: NO eval usage, sed-only extraction, prefix-typed extractors prevent injection
     required: false
@@ -89,10 +93,16 @@ runs:
     - name: "Validate required applications"
       id: validate-apps
       shell: bash
+      env:
+        ADDITIONAL_APPS: ${{ inputs.additional-apps }}
       run: |
         set -euo pipefail
-        if [ -n "${{ inputs.additional-apps }}" ]; then
-          "${GITHUB_ACTION_PATH}/scripts/validate-apps.sh" ${{ inputs.additional-apps }}
+        if [ -n "${ADDITIONAL_APPS}" ]; then
+          # Parse newline-separated app definitions into array
+          # Each definition format: cmd|app_name|version_extractor|min_version
+          # Filter out empty lines and pass as separate arguments
+          readarray -t app_defs < <(echo "${ADDITIONAL_APPS}" | grep -v '^[[:space:]]*$')
+          "${GITHUB_ACTION_PATH}/scripts/validate-apps.sh" "${app_defs[@]}"
         else
           "${GITHUB_ACTION_PATH}/scripts/validate-apps.sh"
         fi

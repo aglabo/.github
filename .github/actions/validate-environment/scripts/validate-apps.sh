@@ -233,7 +233,7 @@ validate_app_exists() {
   # Rejected: ; | & $ ` ( ) space tab (common injection vectors)
   # Intentionally allowed: / . - _ (for paths like /usr/bin/gh or ./bin/tool)
   # Design: Balance security with practicality for legitimate command names
-  if [[ "$cmd" =~ [\;\|\&\$\`\(\)\ \t] ]]; then
+  if [[ "$cmd" =~  [\;\|\&\$\`\(\)[:space:]] ]]; then
     return 2  # Special exit code for security error
   fi
 
@@ -382,11 +382,14 @@ validate_apps() {
   for app_def in "${app_list[@]}"; do
     # Parse app definition: cmd|app_name|version_extractor|min_version
     # Fixed 4-element format with pipe delimiter (no regex conflicts)
-    IFS='|' read -r cmd app_name version_extractor min_ver <<< "$app_def"
+    local cmd app_name version_extractor min_ver
+    IFS='|' read -r cmd app_name version_extractor min_ver <<EOF
+$app_def
+EOF
 
     # Validate application exists (includes security check)
-    validate_app_exists "$cmd" "$app_name"
-    local exists_result=$?
+    local exists_result=0
+    validate_app_exists "$cmd" "$app_name" || exists_result=$?
 
     if [ $exists_result -ne 0 ]; then
       local error_msg
@@ -412,8 +415,8 @@ validate_apps() {
     fi
 
     # Validate application version (uses exit code protocol + global variables)
-    validate_app_version "$cmd" "$app_name" "$version_extractor" "$min_ver"
-    local version_check_result=$?
+    local version_check_result=0
+    validate_app_version "$cmd" "$app_name" "$version_extractor" "$min_ver" || version_check_result=$?
 
     if [ $version_check_result -ne 0 ]; then
       local error_msg
@@ -531,9 +534,14 @@ if [ ${#VALIDATION_ERRORS[@]} -gt 0 ]; then
     FAILED_APPS+=("$failed_app")
   done
 
-  # Combine all errors into a single message
-  IFS='; '
-  error_summary="${VALIDATION_ERRORS[*]}"
+  # Combine all errors into a single message with newlines and 2-space indentation
+  declare -a indented_errors=()
+  for error in "${VALIDATION_ERRORS[@]}"; do
+    indented_errors+=("  ${error}")
+  done
+
+  IFS=$'\n'
+  error_summary="${indented_errors[*]}"
   IFS=' '  # Reset IFS
 
   # Machine-readable output for GitHub Actions
@@ -556,13 +564,14 @@ EOF
   exit 1
 fi
 
-# Create human-readable summary message
+# Create human-readable summary message with 2-space indentation
 declare -a summary_parts=()
 for i in "${!VALIDATED_APPS[@]}"; do
-  summary_parts+=("${VALIDATED_APPS[$i]} ${VALIDATED_VERSIONS[$i]}")
+  summary_parts+=("  ${VALIDATED_APPS[$i]} ${VALIDATED_VERSIONS[$i]}")
 done
 
-IFS=', '
+# Use newline as separator for better readability
+IFS=$'\n'
 all_versions="${summary_parts[*]}"
 IFS=' '  # Reset IFS
 
