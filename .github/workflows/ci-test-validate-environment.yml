@@ -1,0 +1,394 @@
+# src: ./.github/workflows/ci-test-validate-environment.yml
+# @(#) : GitHub Actions workflow for testing validate-environment action
+#
+# Copyright (c) 2025- aglabo <https://github.com/aglabo>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+name: CI Test Validate Environment
+
+# Minimal permissions following security best practices
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  # =============================================================================
+  # Job 1: Positive Tests (5 scenarios)
+  # Test successful validation scenarios
+  # =============================================================================
+  positive-tests:
+    name: "Positive: ${{ matrix.test-name }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Scenario 1: Default Config - No inputs, validates Git + curl
+          - test-name: "Default Config"
+            architecture: "amd64"
+            additional-apps: ""
+            expected-validated-apps: "Git,curl"
+            expected-min-count: 2
+
+          # Scenario 2: Additional Apps (No Version) - Tests node without version check
+          - test-name: "Additional Apps No Version"
+            architecture: "amd64"
+            additional-apps: "node|Node.js||"
+            expected-validated-apps: "Git,curl,Node.js"
+            expected-min-count: 3
+
+          # Scenario 3: Additional Apps (With Version) - Tests git with version check
+          - test-name: "Additional Apps With Version"
+            architecture: "amd64"
+            additional-apps: "git|Git|field:3|2.0"
+            expected-validated-apps: "Git,curl,Git"
+            expected-min-count: 3
+
+          # Scenario 4: Multiple Apps - Tests multiple additional apps
+          - test-name: "Multiple Apps"
+            architecture: "amd64"
+            additional-apps: "node|Node.js|| python3|Python||"
+            expected-validated-apps: "Git,curl,Node.js,Python"
+            expected-min-count: 4
+
+          # Scenario 5: gh CLI with Auth - Tests gh CLI with GITHUB_TOKEN
+          - test-name: "gh CLI with Auth"
+            architecture: "amd64"
+            additional-apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+            expected-validated-apps: "Git,curl,gh"
+            expected-min-count: 3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run validate-environment action
+        id: validate
+        uses: ./.github/actions/validate-environment
+        with:
+          architecture: ${{ matrix.architecture }}
+          additional-apps: ${{ matrix.additional-apps }}
+        env:
+          # Required for gh CLI authentication check
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Verify action succeeded
+        shell: bash
+        run: |
+          echo "::group::Action Outputs"
+          echo "runner-status: ${{ steps.validate.outputs.runner-status }}"
+          echo "runner-message: ${{ steps.validate.outputs.runner-message }}"
+          echo "apps-status: ${{ steps.validate.outputs.apps-status }}"
+          echo "apps-message: ${{ steps.validate.outputs.apps-message }}"
+          echo "validated-apps: ${{ steps.validate.outputs.validated-apps }}"
+          echo "validated-count: ${{ steps.validate.outputs.validated-count }}"
+          echo "failed-apps: ${{ steps.validate.outputs.failed-apps }}"
+          echo "failed-count: ${{ steps.validate.outputs.failed-count }}"
+          echo "::endgroup::"
+
+          # Verify success status
+          if [ "${{ steps.validate.outputs.runner-status }}" != "success" ]; then
+            echo "::error::Expected runner-status='success', got '${{ steps.validate.outputs.runner-status }}'"
+            exit 1
+          fi
+
+          if [ "${{ steps.validate.outputs.apps-status }}" != "success" ]; then
+            echo "::error::Expected apps-status='success', got '${{ steps.validate.outputs.apps-status }}'"
+            exit 1
+          fi
+
+          # Verify non-empty messages
+          if [ -z "${{ steps.validate.outputs.runner-message }}" ]; then
+            echo "::error::runner-message is empty"
+            exit 1
+          fi
+
+          if [ -z "${{ steps.validate.outputs.apps-message }}" ]; then
+            echo "::error::apps-message is empty"
+            exit 1
+          fi
+
+          # Verify validated-count meets minimum expectation
+          validated_count="${{ steps.validate.outputs.validated-count }}"
+          expected_min_count="${{ matrix.expected-min-count }}"
+          if [ "$validated_count" -lt "$expected_min_count" ]; then
+            echo "::error::Expected at least $expected_min_count validated apps, got $validated_count"
+            exit 1
+          fi
+
+          # Verify validated-apps contains expected apps (basic check)
+          validated_apps="${{ steps.validate.outputs.validated-apps }}"
+          if [ -z "$validated_apps" ]; then
+            echo "::error::validated-apps is empty"
+            exit 1
+          fi
+
+          echo "::notice::Test passed: ${{ matrix.test-name }}"
+
+      - name: Create test report
+        if: always()
+        shell: bash
+        run: |
+          report_file="test-report-positive-${{ strategy.job-index }}.txt"
+          cat > "$report_file" <<EOF
+          Test Name: ${{ matrix.test-name }}
+          Status: ${{ job.status }}
+          Runner Status: ${{ steps.validate.outputs.runner-status }}
+          Apps Status: ${{ steps.validate.outputs.apps-status }}
+          Validated Apps: ${{ steps.validate.outputs.validated-apps }}
+          Validated Count: ${{ steps.validate.outputs.validated-count }}
+          Runner Message: ${{ steps.validate.outputs.runner-message }}
+          Apps Message: ${{ steps.validate.outputs.apps-message }}
+          EOF
+          echo "Report saved to $report_file"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-positive-${{ strategy.job-index }}
+          path: test-report-positive-${{ strategy.job-index }}.txt
+          retention-days: 7
+
+  # =============================================================================
+  # Job 2: Negative Tests (4 scenarios)
+  # Test expected failure scenarios
+  # =============================================================================
+  negative-tests:
+    name: "Negative: ${{ matrix.test-name }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Scenario 1: Invalid Architecture
+          - test-name: "Invalid Architecture"
+            architecture: "invalid"
+            additional-apps: ""
+            expected-error-pattern: "Invalid architecture"
+
+          # Scenario 2: Missing App
+          - test-name: "Missing App"
+            architecture: "amd64"
+            additional-apps: "nonexistent|Nonexistent||"
+            expected-error-pattern: "is not installed"
+
+          # Scenario 3: Version Too Low
+          - test-name: "Version Too Low"
+            architecture: "amd64"
+            additional-apps: "git|Git|field:3|999.0"
+            expected-error-pattern: "version.*below minimum"
+
+          # Scenario 4: Command Injection Prevention
+          - test-name: "Command Injection Prevention"
+            architecture: "amd64"
+            additional-apps: "git;rm -rf|Evil||"
+            expected-error-pattern: "shell metacharacters"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run action (expect failure)
+        id: validate
+        continue-on-error: true
+        uses: ./.github/actions/validate-environment
+        with:
+          architecture: ${{ matrix.architecture }}
+          additional-apps: ${{ matrix.additional-apps }}
+
+      - name: Verify failure occurred
+        shell: bash
+        run: |
+          echo "::group::Action Outputs"
+          echo "outcome: ${{ steps.validate.outcome }}"
+          echo "runner-status: ${{ steps.validate.outputs.runner-status }}"
+          echo "runner-message: ${{ steps.validate.outputs.runner-message }}"
+          echo "apps-status: ${{ steps.validate.outputs.apps-status }}"
+          echo "apps-message: ${{ steps.validate.outputs.apps-message }}"
+          echo "::endgroup::"
+
+          # Verify action failed
+          if [ "${{ steps.validate.outcome }}" != "failure" ]; then
+            echo "::error::Expected action to fail, but it succeeded"
+            exit 1
+          fi
+
+          # Verify error message pattern (check both runner and apps messages)
+          runner_message="${{ steps.validate.outputs.runner-message }}"
+          apps_message="${{ steps.validate.outputs.apps-message }}"
+          pattern="${{ matrix.expected-error-pattern }}"
+
+          if ! echo "$runner_message" | grep -qEi "$pattern" && ! echo "$apps_message" | grep -qEi "$pattern"; then
+            echo "::error::Error message doesn't match pattern '$pattern'"
+            echo "Runner message: $runner_message"
+            echo "Apps message: $apps_message"
+            exit 1
+          fi
+
+          echo "::notice::Test passed: ${{ matrix.test-name }}"
+
+      - name: Create test report
+        if: always()
+        shell: bash
+        run: |
+          report_file="test-report-negative-${{ strategy.job-index }}.txt"
+          cat > "$report_file" <<EOF
+          Test Name: ${{ matrix.test-name }}
+          Status: ${{ job.status }}
+          Expected: Failure
+          Outcome: ${{ steps.validate.outcome }}
+          Runner Status: ${{ steps.validate.outputs.runner-status }}
+          Apps Status: ${{ steps.validate.outputs.apps-status }}
+          Runner Message: ${{ steps.validate.outputs.runner-message }}
+          Apps Message: ${{ steps.validate.outputs.apps-message }}
+          EOF
+          echo "Report saved to $report_file"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-negative-${{ strategy.job-index }}
+          path: test-report-negative-${{ strategy.job-index }}.txt
+          retention-days: 7
+
+  # =============================================================================
+  # Job 3: Output Format Validation (1 comprehensive test)
+  # Verify output format contracts
+  # =============================================================================
+  output-validation:
+    name: "Output Format Validation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run action with successful configuration
+        id: validate
+        uses: ./.github/actions/validate-environment
+        with:
+          architecture: "amd64"
+          additional-apps: "gh|gh|regex:version ([0-9.]+)|2.0"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Verify output formats
+        shell: bash
+        run: |
+          echo "::group::Action Outputs"
+          echo "runner-status: ${{ steps.validate.outputs.runner-status }}"
+          echo "runner-message: ${{ steps.validate.outputs.runner-message }}"
+          echo "apps-status: ${{ steps.validate.outputs.apps-status }}"
+          echo "apps-message: ${{ steps.validate.outputs.apps-message }}"
+          echo "validated-apps: ${{ steps.validate.outputs.validated-apps }}"
+          echo "validated-count: ${{ steps.validate.outputs.validated-count }}"
+          echo "failed-apps: ${{ steps.validate.outputs.failed-apps }}"
+          echo "failed-count: ${{ steps.validate.outputs.failed-count }}"
+          echo "::endgroup::"
+
+          # Status enum validation (must be 'success' or 'error')
+          runner_status="${{ steps.validate.outputs.runner-status }}"
+          if [[ ! "$runner_status" =~ ^(success|error)$ ]]; then
+            echo "::error::runner-status must be 'success' or 'error', got '$runner_status'"
+            exit 1
+          fi
+
+          apps_status="${{ steps.validate.outputs.apps-status }}"
+          if [[ ! "$apps_status" =~ ^(success|error)$ ]]; then
+            echo "::error::apps-status must be 'success' or 'error', got '$apps_status'"
+            exit 1
+          fi
+
+          # Non-empty message validation
+          runner_message="${{ steps.validate.outputs.runner-message }}"
+          if [ -z "$runner_message" ]; then
+            echo "::error::runner-message must not be empty"
+            exit 1
+          fi
+
+          apps_message="${{ steps.validate.outputs.apps-message }}"
+          if [ -z "$apps_message" ]; then
+            echo "::error::apps-message must not be empty"
+            exit 1
+          fi
+
+          # For success status: validate success-specific outputs
+          if [ "$apps_status" = "success" ]; then
+            # Comma-separated list format validation
+            validated_apps="${{ steps.validate.outputs.validated-apps }}"
+            if [[ ! "$validated_apps" =~ ^[a-zA-Z0-9._-]+(,[a-zA-Z0-9._-]+)*$ ]]; then
+              echo "::error::validated-apps format invalid: '$validated_apps'"
+              exit 1
+            fi
+
+            # Positive integer count validation
+            validated_count="${{ steps.validate.outputs.validated-count }}"
+            if [[ ! "$validated_count" =~ ^[0-9]+$ ]]; then
+              echo "::error::validated-count must be a positive integer, got '$validated_count'"
+              exit 1
+            fi
+
+            if [ "$validated_count" -le 0 ]; then
+              echo "::error::validated-count must be > 0, got $validated_count"
+              exit 1
+            fi
+
+            # Verify at least default apps (Git, curl) plus gh are present
+            if [ "$validated_count" -lt 3 ]; then
+              echo "::error::Expected at least 3 validated apps (Git, curl, gh), got $validated_count"
+              exit 1
+            fi
+
+            echo "::notice::All output format validations passed"
+          else
+            echo "::warning::Action returned error status, skipping success output validation"
+          fi
+
+      - name: Create validation report
+        if: always()
+        shell: bash
+        run: |
+          report_file="test-report-output-validation.txt"
+          cat > "$report_file" <<EOF
+          Test Name: Output Format Validation
+          Status: ${{ job.status }}
+
+          Output Formats Validated:
+          - runner-status enum: ${{ steps.validate.outputs.runner-status }}
+          - apps-status enum: ${{ steps.validate.outputs.apps-status }}
+          - runner-message non-empty: $([ -n "${{ steps.validate.outputs.runner-message }}" ] && echo "Yes" || echo "No")
+          - apps-message non-empty: $([ -n "${{ steps.validate.outputs.apps-message }}" ] && echo "Yes" || echo "No")
+          - validated-apps format: ${{ steps.validate.outputs.validated-apps }}
+          - validated-count positive int: ${{ steps.validate.outputs.validated-count }}
+
+          Full Output:
+          Runner Status: ${{ steps.validate.outputs.runner-status }}
+          Runner Message: ${{ steps.validate.outputs.runner-message }}
+          Apps Status: ${{ steps.validate.outputs.apps-status }}
+          Apps Message: ${{ steps.validate.outputs.apps-message }}
+          Validated Apps: ${{ steps.validate.outputs.validated-apps }}
+          Validated Count: ${{ steps.validate.outputs.validated-count }}
+          Failed Apps: ${{ steps.validate.outputs.failed-apps }}
+          Failed Count: ${{ steps.validate.outputs.failed-count }}
+          EOF
+          echo "Report saved to $report_file"
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-output-validation
+          path: test-report-output-validation.txt
+          retention-days: 7
