@@ -23,6 +23,8 @@ English | [日本語](README.ja.md)
 
 ## `.github` Shared Development Infrastructure
 
+[![CI Test All](https://github.com/aglabo/.github-aglabo/actions/workflows/ci-test-all.yml/badge.svg)](https://github.com/aglabo/.github-aglabo/actions/workflows/ci-test-all.yml)
+
 ## OSS Quality Assurance Through Automation - Enforce Quality via Configuration, Not Documentation
 
 <!-- textlint-disable ja-technical-writing/max-comma -->
@@ -62,7 +64,7 @@ Key features include Issue/PR templates, auto-formatting, linting, security scan
 | **Security**   | gitleaks/secretlint          | Secret detection, commit blocking           |
 | **Git Hooks**  | lefthook                     | Pre-commit automated checks                 |
 | **Commit**     | commitlint                   | Conventional Commits enforcement            |
-| **CI/CD**      | GitHub Actions               | Secret scanning, CodeQL                     |
+| **CI/CD**      | GitHub Actions               | Secret scanning, CodeQL, action tests       |
 
 ### Configuration Files
 
