@@ -51,7 +51,7 @@ jobs:
 
       # Step 3: Setup actionlint binary
       - name: Setup actionlint
-        uses: aglabo/.github/.github/actions/setup-actionlint@r1.1.2
+        uses: aglabo/.github/.github/actions/setup-actionlint@r1.2.1
         with:
           version: ${{ inputs.actionlint-version }}
 
