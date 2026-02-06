@@ -22,6 +22,8 @@ jobs:
   # Test successful validation scenarios
   # =============================================================================
   positive-tests:
+    permissions:
+      contents: read
     name: "Positive: ${{ matrix.test-name }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -67,7 +69,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Run validate-environment action
         id: validate
@@ -151,7 +155,7 @@ jobs:
 
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-positive-${{ strategy.job-index }}
           path: test-report-positive-${{ strategy.job-index }}.txt
@@ -162,6 +166,8 @@ jobs:
   # Test expected failure scenarios
   # =============================================================================
   negative-tests:
+    permissions:
+      contents: read
     name: "Negative: ${{ matrix.test-name }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -196,7 +202,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Run action (expect failure)
         id: validate
@@ -256,7 +264,7 @@ jobs:
 
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-negative-${{ strategy.job-index }}
           path: test-report-negative-${{ strategy.job-index }}.txt
@@ -267,13 +275,17 @@ jobs:
   # Verify output format contracts
   # =============================================================================
   output-validation:
+    permissions:
+      contents: read
     name: "Output Format Validation"
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Run action with successful configuration
         id: validate
@@ -387,7 +399,7 @@ jobs:
 
       - name: Upload validation report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-output-validation
           path: test-report-output-validation.txt
