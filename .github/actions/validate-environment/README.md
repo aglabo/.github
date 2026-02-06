@@ -606,6 +606,64 @@ Critical checks:
 - gh CLI errors → [docs/troubleshooting.md - gh CLI Troubleshooting](docs/troubleshooting.md#gh-cli-troubleshooting)
 - Local execution → [docs/troubleshooting.md - Local Execution](docs/troubleshooting.md#local-execution)
 
+## Testing
+
+This action includes comprehensive automated tests to ensure reliability across all supported scenarios.
+
+### Test Coverage
+
+The test suite validates 10 essential scenarios across 3 test jobs:
+
+**Positive Tests** (5 scenarios):
+
+- Default configuration (Git + curl only)
+- Additional apps without version check
+- Additional apps with version check
+- Multiple applications validation
+- gh CLI with authentication
+
+**Negative Tests** (4 scenarios):
+
+- Invalid architecture input
+- Missing application detection
+- Version requirement enforcement
+- Command injection prevention
+
+**Output Format Validation** (1 comprehensive test):
+
+- Status enum validation (success/error)
+- Non-empty message validation
+- Comma-separated list format
+- Positive integer count validation
+
+### Running Tests Manually
+
+Run the full test suite manually using GitHub CLI:
+
+```bash
+gh workflow run ci-test-all.yml
+```
+
+Or trigger via GitHub Actions UI:
+
+1. Navigate to **Actions** tab
+2. Select **CI Test All** workflow
+3. Click **Run workflow**
+
+### Test Results
+
+- Test results are available in the **Actions** tab of the repository
+- Each test job uploads detailed test reports as artifacts (7-day retention)
+- Download test reports using: `gh run download <run-id>`
+
+### Test Workflow Files
+
+- **Main orchestrator**: `.github/workflows/ci-test-all.yml`
+- **Test implementation**: `.github/workflows/ci-test-validate-environment.yml`
+- **Helper script**: `.github/actions/validate-environment/tests/assert-outputs.sh`
+
+For test implementation details, see the workflow files or review test run logs in GitHub Actions.
+
 ## License
 
 MIT License
