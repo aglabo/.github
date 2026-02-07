@@ -58,6 +58,9 @@ tmp/
 **/temp/
 **/tmp/
 
+## Development tools (installed locally)
+.tools/
+
 
 ##  Editor
 #   VSCode
