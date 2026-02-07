@@ -6,7 +6,7 @@
   "author": "Furukawa, Atsushi <atsushifx@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "prepare": "bash ./scripts/setup-devenv.sh",
+    "prepare": "bash ./scripts/setup-dev-env.sh",
     "scan:secrets": "gitleaks dir --config ./configs/gitleaks.toml . && secretlint --secretlintrc ./configs/secretlint.config.yaml **/*",
     "lint:text": "pnpm exec textlint --config ./configs/textlintrc.yaml --cache --cache-location .cache/textlintcache ",
     "lint:markdown": "pnpm exec markdownlint-cli2 --config ./configs/.markdownlint.yaml "
