@@ -444,8 +444,10 @@ EOF
       echo "::error::${error_msg}" >&2
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
         VALIDATION_ERRORS+=("${error_msg}")
@@ -474,8 +476,10 @@ EOF
       echo "::error::${error_msg}" >&2
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
         VALIDATION_ERRORS+=("${error_msg}")
@@ -493,8 +497,10 @@ EOF
       local error_msg="${SPECIAL_VALIDATION_ERROR:-Special validation failed for ${app_name}}"
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
         VALIDATION_ERRORS+=("${error_msg}")
@@ -574,21 +580,18 @@ if [ ${#VALIDATION_ERRORS[@]} -gt 0 ]; then
   IFS=' '  # Reset IFS
 
   # Machine-readable output for GitHub Actions
-  echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-  # Use GitHub Actions multiline string format
-  cat >> "$GITHUB_OUTPUT_FILE" <<EOF
+  {
+    echo "status=error"
+    cat <<EOF
 message<<MULTILINE_EOF
 Application validation failed:
 ${error_summary}
 MULTILINE_EOF
 EOF
-
-  # Additional structured outputs
-  IFS=','
-  echo "failed_apps=${FAILED_APPS[*]}" >> "$GITHUB_OUTPUT_FILE"
-  IFS=' '  # Reset IFS
-  echo "failed_count=${#FAILED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
-  echo "validated_count=${#VALIDATED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
+    ( IFS=','; echo "failed_apps=${FAILED_APPS[*]}" )
+    echo "failed_count=${#FAILED_APPS[@]}"
+    echo "validated_count=${#VALIDATED_APPS[@]}"
+  } >> "$GITHUB_OUTPUT_FILE"
 
   exit 1
 fi
@@ -607,20 +610,17 @@ IFS=' '  # Reset IFS
 echo "=== Application validation passed ==="
 
 # Machine-readable output for GitHub Actions
-echo "status=success" >> "$GITHUB_OUTPUT_FILE"
-# Use GitHub Actions multiline string format
-cat >> "$GITHUB_OUTPUT_FILE" <<EOF
+{
+  echo "status=success"
+  cat <<EOF
 message<<MULTILINE_EOF
 Applications validated:
 ${all_versions}
 MULTILINE_EOF
 EOF
-
-# Additional structured outputs (use structured arrays directly)
-IFS=','
-echo "validated_apps=${VALIDATED_APPS[*]}" >> "$GITHUB_OUTPUT_FILE"
-IFS=' '  # Reset IFS
-echo "validated_count=${#VALIDATED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
-echo "failed_count=0" >> "$GITHUB_OUTPUT_FILE"
+  ( IFS=','; echo "validated_apps=${VALIDATED_APPS[*]}" )
+  echo "validated_count=${#VALIDATED_APPS[@]}"
+  echo "failed_count=0"
+} >> "$GITHUB_OUTPUT_FILE"
 
 exit 0
