@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src: ./scripts/prepare.sh
+# src: ./scripts/setup-dev-env.sh
 # @(#) : Setup development environment and install tools
 #
 # Copyright (c) 2025 aglabo <https://github.com/aglabo>
@@ -23,9 +23,9 @@
 #   - Extensible: easy to add new tools
 #
 # @usage
-#   ./scripts/setup-devenv.sh              # Setup all tools
-#   ./scripts/setup-devenv.sh lefthook     # Setup only lefthook
-#   ./scripts/setup-devenv.sh shellspec    # Setup only ShellSpec
+#   ./scripts/setup-dev-env.sh              # Setup all tools
+#   ./scripts/setup-dev-env.sh lefthook     # Setup only lefthook
+#   ./scripts/setup-dev-env.sh shellspec    # Setup only ShellSpec
 #
 # @exitcode 0 All tools installed/updated successfully
 # @exitcode 1 Installation/update failed
