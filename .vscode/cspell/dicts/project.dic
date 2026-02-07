@@ -1,3 +1,5 @@
 # project.dic: dictionary for this project
+devenv
 ghalint
+msys
 sbom
