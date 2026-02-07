@@ -66,7 +66,9 @@ jobs:
           ghalint_status=${PIPESTATUS[0]}
           set -e
 
-          echo "status=${ghalint_status}" >> "$GITHUB_OUTPUT"
+          {
+            echo "status=${ghalint_status}"
+          } >> "$GITHUB_OUTPUT"
           exit "${ghalint_status}"
 
       # Step 5: Upload error report as artifact (only on failure)
