@@ -123,7 +123,7 @@ jobs:
           # gh CLI を使用したワークフロー
 ```
 
-注意: `env: GH_TOKEN` がない場合、`gh auth status` チェックが失敗し、"gh is not authenticated" エラーが発生します。詳細は [gh CLI 特殊処理](#gh-cli-特殊処理) および [トラブルシューティング](#エラー-gh-is-not-authenticated) を参照してください。
+注意: `env: GH_TOKEN` がない場合、`gh auth status` チェックが失敗し、"gh is not authenticated" エラーが発生します。詳細は [gh CLI 特殊処理](#gh-cli-特殊処理) および [トラブルシューティング](docs/troubleshooting.ja.md) を参照してください。
 
 #### 例 3: 複数アプリケーションの検証
 
@@ -288,7 +288,7 @@ GitHub Actions では、`gh auth status` が成功するために **GH_TOKEN 環
 
 gh CLI 検証には 3 つのシナリオがあります:
 
-**シナリオ 1: GH_TOKEN あり (正常)**
+シナリオ 1: GH_TOKEN あり (正常)
 
 ```yaml
 - name: Validate with gh CLI
@@ -299,13 +299,13 @@ gh CLI 検証には 3 つのシナリオがあります:
     GH_TOKEN: ${{ github.token }}
 ```
 
-**結果**:
+結果:
 
 - `gh auth status` が成功 (exit code 0)
 - 検証成功: `apps-status: success`
 - gh CLI を使用したワークフローステップが正常に動作
 
-**シナリオ 2: GH_TOKEN なし (エラー)**
+シナリオ 2: GH_TOKEN なし (エラー)
 
 ```yaml
 - name: Validate with gh CLI (誤った設定)
@@ -315,21 +315,21 @@ gh CLI 検証には 3 つのシナリオがあります:
   # env: GH_TOKEN が指定されていない
 ```
 
-**結果**:
+結果:
 
 - `gh auth status` が失敗 (exit code 1)
 - エラー: `"gh is not authenticated. Run 'gh auth login' or set GH_TOKEN"`
 - 検証失敗: `apps-status: error`
 - ワークフローが停止
 
-**エラーメッセージ例**:
+エラーメッセージ例:
 
 ```text
 ::error::gh is not authenticated. Run 'gh auth login' or set GH_TOKEN
 ::error::To resolve: Add 'env: GH_TOKEN: ${{ github.token }}' to your workflow step
 ```
 
-**シナリオ 3: gh CLI を使用しない (影響なし)**
+シナリオ 3: gh CLI を使用しない (影響なし)
 
 ```yaml
 - name: Validate without gh CLI
