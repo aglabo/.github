@@ -5,7 +5,7 @@ description: Common development infrastructure ensuring OSS quality through auto
 
 <!--
 Document Metadata:
-- Version: 1.0.0
+- Version: 1.2.2
 - Created: 2025-11-08
 - Author: atsushifx
 - Last Updated: 2025-11-14

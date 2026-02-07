@@ -47,7 +47,7 @@
 # @exitcode 1 Error during generation (AI output invalid, markers missing, etc.)
 #
 # @author atsushifx
-# @version 2.0.0
+# @version 1.2.2
 # @license MIT
 
 set -euo pipefail

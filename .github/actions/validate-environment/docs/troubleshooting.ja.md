@@ -2,7 +2,7 @@
 title: Validate Environment Action - トラブルシューティング
 description: よくあるエラーと解決策、制限事項
 metadata:
-  - Version: 1.2.0
+  - Version: 1.2.2
   - Created: 2026-02-05
   - Last Updated: 2026-02-05
 Changelog:
