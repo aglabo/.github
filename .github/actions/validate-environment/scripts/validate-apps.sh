@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # src: ./.github/actions/validate-environment/scripts/validate-apps.sh
-# @(#) : Validate required applications (Git, curl, gh CLI)
+# @(#) : Validate required applications (Git, curl, gh CLI, etc.)
 #
 # Copyright (c) 2026- aglabo <https://github.com/aglabo>
 #
@@ -16,11 +16,7 @@
 #   **Default Checks:**
 #   1. Git is installed (version 2.30+ required)
 #   2. curl is installed
-#
-#   **Optional gh CLI Validation:**
-#   - When gh is included via additional-apps, validates:
-#     * gh is installed (version 2.0+ required)
-#     * gh is authenticated (via `gh auth status`)
+#   3. gh (GitHub CLI) is installed (version 2.0+ required)
 #
 #   **Features:**
 #   - Gate action design: exits immediately on first validation error
@@ -54,7 +50,7 @@
 # @exitcode 1 Application validation failed (one or more apps missing or invalid)
 #
 # @author   atsushifx
-# @version  1.2.0
+# @version  1.2.2
 # @license  MIT
 
 set -euo pipefail
@@ -74,37 +70,21 @@ declare -a VALIDATION_ERRORS=()
 declare -a VALIDATED_APPS=()        # Application names only
 declare -a VALIDATED_VERSIONS=()    # Version strings only
 
-# Version validation result globals (used by validate_app_version)
-# SCOPE: Internal to this script process only (NOT visible to action.yml caller)
-# PURPOSE: Pass results between validate_app_version() and validate_apps() functions
-#          within the same shell process, avoiding stdout pollution
-# EXTERNAL CONTRACT: action.yml receives results via GITHUB_OUTPUT, not these globals
+# Extract version number from full version string
+# Parameters: $1=full_version (e.g., "git version 2.52.0"), $2=version_extractor
+# Returns: extracted version number to stdout (e.g., "2.52.0")
+# Note: Safe extraction using sed only - no eval, prefix-typed extractors only
 #
-# CONCURRENCY: NOT thread-safe. validate_apps() must execute sequentially (current design).
-#              If parallel execution is needed in the future, consider:
-#              - Using subshells with temp files instead of globals
-#              - Using nameref (local -n) for bash 4.3+ (adds complexity)
-declare VALIDATED_VERSION=""        # Full version string on success
-declare VALIDATED_VERSION_NUM=""    # Extracted version number (for error reporting)
-declare VALIDATED_MIN_VERSION=""    # Required minimum version (for error reporting)
-
-# Special validation error message (used by validate_app_special)
-# SCOPE: Internal to this script process, same concurrency constraints as above
-declare SPECIAL_VALIDATION_ERROR="" # Detailed error message from tool-specific validation
-
-# @description Extract version number from full version string using safe sed-only extraction
-# @arg $1 string Full version string (e.g., "git version 2.52.0")
-# @arg $2 string Version extractor: "field:N", "regex:PATTERN", or empty for auto semver
-# @exitcode 0 Extraction successful
-# @exitcode 1 Extraction failed (no match or invalid pattern)
-# @stdout Extracted version number (e.g., "2.52.0")
-# @stderr Error messages with ::error:: prefix
+# Supported formats (prefix-typed):
+#   field:N         - Extract Nth field (space-delimited, 1-indexed)
+#   regex:PATTERN   - sed -E 's/PATTERN/\1/' with capture group
+#   (empty)         - Default: extract semver (X.Y or X.Y.Z)
 #
-# @example
-#   extract_version_number "git version 2.52.0" "field:3"                    # → "2.52.0"
-#   extract_version_number "git version 2.52.0" "regex:.*version ([0-9.]+).*" # → "2.52.0"
-#   extract_version_number "node v18.0.0" "regex:v([0-9.]+)"                 # → "18.0.0"
-#   extract_version_number "curl 8.17.0" ""                                  # → "8.17.0" (auto semver)
+# Examples:
+#   extract_version_number "git version 2.52.0" "field:3"                    → "2.52.0"
+#   extract_version_number "git version 2.52.0" "regex:.*version ([0-9.]+).*" → "2.52.0"
+#   extract_version_number "node v18.0.0" "regex:v([0-9.]+)"                 → "18.0.0"
+#   extract_version_number "curl 8.17.0" ""                                  → "8.17.0" (auto semver)
 extract_version_number() {
   local full_version="$1"
   local version_extractor="$2"
@@ -152,25 +132,6 @@ extract_version_number() {
         return 1
       fi
 
-      # DESIGN PHILOSOPHY: Security and Auditability over Flexibility
-      #
-      # We intentionally reject common shell metacharacters including '|' (pipe).
-      # While '|' is valid in regex (alternation), we reject it because:
-      #
-      # 1. This extractor is NOT a general-purpose regex engine
-      # 2. Simplicity and auditability are prioritized over expressiveness
-      # 3. Version extraction patterns should be simple (e.g., "version ([0-9.]+)")
-      # 4. Complex patterns indicate poor --version output design by upstream tools
-      # 5. Rejecting metacharacters makes code review and security audits tractable
-      #
-      # If you need alternation, use character classes instead:
-      #   Bad:  "version|ver ([0-9.]+)"    # pipe rejected
-      #   Good: "vers?ion ([0-9.]+)"        # optional 's' via ?
-      #   Good: "ver[s]?ion ([0-9.]+)"      # character class
-      #
-      # This is a conscious trade-off: we sacrifice some regex flexibility
-      # to gain confidence that no injection attacks can occur via this path.
-      #
       # Reject shell metacharacters that shouldn't appear in version extraction regex
       if [[ "$argument" =~ [\;\|\&\$\`\\] ]]; then
         echo "::error::Regex pattern contains dangerous shell metacharacters: $argument" >&2
@@ -203,11 +164,11 @@ extract_version_number() {
   esac
 }
 
-# @description Check version meets minimum requirement using GNU sort -V
-# @arg $1 string Version to check (e.g., "2.52.0")
-# @arg $2 string Minimum required version (e.g., "2.30")
-# @exitcode 0 Version meets or exceeds minimum requirement
-# @exitcode 1 Version below minimum requirement
+# Check version meets minimum requirement (pure comparison function)
+# Parameters: $1=version (e.g., "2.52.0"), $2=min_version (e.g., "2.30")
+# Returns: 0 if version >= min_version, 1 if version < min_version
+# Note: Uses sort -V for stable version comparison (handles semver, prerelease, etc.)
+#       Requires GNU coreutils (available on all GitHub-hosted runners)
 check_version() {
   local version="$1"
   local min_version="$2"
@@ -444,11 +405,13 @@ EOF
       echo "::error::${error_msg}" >&2
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
-        VALIDATION_ERRORS+=("${error_msg}")
+        VALIDATION_ERRORS+=("Invalid command name: $cmd")
         continue
       fi
     fi
@@ -474,32 +437,50 @@ EOF
       echo "::error::${error_msg}" >&2
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
         VALIDATION_ERRORS+=("${error_msg}")
-        continue
+        continue  # Skip to next app
       fi
     fi
 
-    # Store app name and version (VALIDATED_VERSION global contains the version string)
-    VALIDATED_APPS+=("${app_name}")
-    VALIDATED_VERSIONS+=("${VALIDATED_VERSION}")
+    # Get full version string
+    local VERSION=$("$cmd" --version 2>&1 | head -1)
+    echo "  ✓ ${VERSION}" >&2
+    echo "" >&2
 
-    # Perform tool-specific validation (e.g., gh auth check, docker daemon, etc.)
-    if ! validate_app_special "$cmd" "$app_name"; then
-      # Get detailed error message from global, with fallback
-      local error_msg="${SPECIAL_VALIDATION_ERROR:-Special validation failed for ${app_name}}"
+    # Store app name and version separately (structured data)
+    VALIDATED_APPS+=("${app_name}")
+    VALIDATED_VERSIONS+=("${VERSION}")
+
+    # Check minimum version if min_ver is specified
+    # (version_extractor defaults to semver auto-extraction if empty)
+    if [ -n "$min_ver" ]; then
+      # Extract version number from full version string
+      local version_num=$(extract_version_number "$VERSION" "$version_extractor")
+
+      # Validate version against minimum requirement
+      if ! check_version "$version_num" "$min_ver"; then
+        local error_msg="${app_name} version ${version_num} is below minimum required ${min_ver}"
+        echo "::error::${error_msg}" >&2
 
       if [ "$FAIL_FAST" = "true" ]; then
-        echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-        echo "message=${error_msg}" >> "$GITHUB_OUTPUT_FILE"
+        {
+          echo "status=error"
+          echo "message=${error_msg}"
+        } >> "$GITHUB_OUTPUT_FILE"
         exit 1
       else
         VALIDATION_ERRORS+=("${error_msg}")
         continue
       fi
+    else
+      # Version check skipped (no extractor or min_version specified)
+      echo "  ::warning::${app_name}: version check skipped (no minimum version specified)" >&2
     fi
   done
 }
@@ -551,14 +532,10 @@ if [ ${#VALIDATION_ERRORS[@]} -gt 0 ]; then
   echo "::error::Application validation failed with ${#VALIDATION_ERRORS[@]} error(s):"
 
   # Extract failed app names from error messages
-  # IMPORTANT: This extraction depends on error message format
-  # If you change error messages in validate_apps(), update this regex pattern
-  # Current patterns: " is not installed", " version", "Special validation failed for"
   declare -a FAILED_APPS=()
   for error in "${VALIDATION_ERRORS[@]}"; do
     echo "::error::  - ${error}"
     # Extract app name from error message (before " is not installed" or " version")
-    # Note: This may not extract correctly for all error types (e.g., "Special validation failed for X")
     failed_app=$(echo "$error" | sed -E 's/ (is not installed|version).*//')
     FAILED_APPS+=("$failed_app")
   done
@@ -574,21 +551,18 @@ if [ ${#VALIDATION_ERRORS[@]} -gt 0 ]; then
   IFS=' '  # Reset IFS
 
   # Machine-readable output for GitHub Actions
-  echo "status=error" >> "$GITHUB_OUTPUT_FILE"
-  # Use GitHub Actions multiline string format
-  cat >> "$GITHUB_OUTPUT_FILE" <<EOF
+  {
+    echo "status=error"
+    cat <<EOF
 message<<MULTILINE_EOF
 Application validation failed:
 ${error_summary}
 MULTILINE_EOF
 EOF
-
-  # Additional structured outputs
-  IFS=','
-  echo "failed_apps=${FAILED_APPS[*]}" >> "$GITHUB_OUTPUT_FILE"
-  IFS=' '  # Reset IFS
-  echo "failed_count=${#FAILED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
-  echo "validated_count=${#VALIDATED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
+    ( IFS=','; echo "failed_apps=${FAILED_APPS[*]}" )
+    echo "failed_count=${#FAILED_APPS[@]}"
+    echo "validated_count=${#VALIDATED_APPS[@]}"
+  } >> "$GITHUB_OUTPUT_FILE"
 
   exit 1
 fi
@@ -607,20 +581,17 @@ IFS=' '  # Reset IFS
 echo "=== Application validation passed ==="
 
 # Machine-readable output for GitHub Actions
-echo "status=success" >> "$GITHUB_OUTPUT_FILE"
-# Use GitHub Actions multiline string format
-cat >> "$GITHUB_OUTPUT_FILE" <<EOF
+{
+  echo "status=success"
+  cat <<EOF
 message<<MULTILINE_EOF
 Applications validated:
 ${all_versions}
 MULTILINE_EOF
 EOF
-
-# Additional structured outputs (use structured arrays directly)
-IFS=','
-echo "validated_apps=${VALIDATED_APPS[*]}" >> "$GITHUB_OUTPUT_FILE"
-IFS=' '  # Reset IFS
-echo "validated_count=${#VALIDATED_APPS[@]}" >> "$GITHUB_OUTPUT_FILE"
-echo "failed_count=0" >> "$GITHUB_OUTPUT_FILE"
+  ( IFS=','; echo "validated_apps=${VALIDATED_APPS[*]}" )
+  echo "validated_count=${#VALIDATED_APPS[@]}"
+  echo "failed_count=0"
+} >> "$GITHUB_OUTPUT_FILE"
 
 exit 0

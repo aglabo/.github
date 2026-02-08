@@ -79,7 +79,9 @@ jobs:
           gitleaks_status=$?
           set -e
 
-          echo "status=${gitleaks_status}" >> "$GITHUB_OUTPUT"
+          {
+            echo "status=${gitleaks_status}"
+          } >> "$GITHUB_OUTPUT"
           exit "${gitleaks_status}"
 
       # Step 6: Upload scan results (only on failure)

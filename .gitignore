@@ -35,6 +35,9 @@ $~*
 .env*
 .env.*
 
+# local tools
+.tools/
+
 ## AI generated files
 
 ## Coding AI depended
@@ -57,6 +60,9 @@ temp/
 tmp/
 **/temp/
 **/tmp/
+
+## Development tools (installed locally)
+.tools/
 
 
 ##  Editor

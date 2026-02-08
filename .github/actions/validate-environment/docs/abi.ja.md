@@ -2,7 +2,7 @@
 title: Validate Environment Action - ABI と契約
 description: 内部 ABI 仕様、入力/出力契約、セキュリティモデル
 metadata:
-  - Version: 1.2.0
+  - Version: 1.2.2
   - Created: 2026-02-05
   - Last Updated: 2026-02-05
 Changelog:
