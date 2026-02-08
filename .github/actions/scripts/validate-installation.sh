@@ -33,7 +33,7 @@
 # @exitcode 5 Validation fails
 #
 # @author aglabo
-# @version 1.0.0
+# @version 1.2.2
 # @license MIT
 
 set -euo pipefail
