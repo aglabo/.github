@@ -35,6 +35,11 @@ $~*
 .env*
 .env.*
 
+
+## Development tools (installed locally)
+.tools/
+
+
 ## AI generated files
 
 ## Coding AI depended
