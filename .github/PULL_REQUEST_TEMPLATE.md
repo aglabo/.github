@@ -8,10 +8,10 @@ assignees: ["atsushifx"]
 
 ## Overview
 
-**Summary:**
+**Summary**
 (Brief, imperative one-line summary of the change)
 
-**Background / Motivation:**
+**Background / Motivation**
 Briefly explain why this change is needed and any relevant context.
 
 > Example Summary: Adds Vale-based spelling validation to enforce repository terminology.

@@ -1,7 +1,7 @@
 # src: .gitignore
-# @(#) : typescript compile settings
+# @(#) : mainly ignored files and directories
 #
-# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
+# Copyright (c) 2025- atsushifx <http://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
@@ -31,14 +31,15 @@ $~*
 *swp
 *lock
 
+# session files
+*session.json
+*session
+**/*session.json
+**/*session
+
 # .env files
 .env*
 .env.*
-
-
-## Development tools (installed locally)
-.tools/
-
 
 ## AI generated files
 
@@ -62,6 +63,13 @@ temp/
 tmp/
 **/temp/
 **/tmp/
+
+
+## Development tools (installed locally)
+.tools/
+
+# lock file
+pnpm*lock.yaml
 
 
 ##  Editor
