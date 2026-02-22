@@ -1,7 +1,7 @@
 // src: configs/commitlint.config.js
-// @(#) : commitlint 基本設定
+// @(#) : commitlint basic configuration
 //
-// Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
+// Copyright (c) 2025- atsushifx <http://github.com/atsushifx>
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -32,6 +32,6 @@ module.exports = {
       'deps', // (custom) Updating third-party dependencies (npm/yarn/etc.)
     ]],
     'subject-case': [2, 'never', ['start-case', 'pascal-case']], // etc
-    'header-max-length': [2, 'always', 72],
+    'header-max-length': [2, 'always', 76],
   },
 };
