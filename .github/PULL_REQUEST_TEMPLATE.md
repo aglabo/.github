@@ -16,18 +16,13 @@ Briefly explain why this change is needed and any relevant context.
 
 > Example Summary: Adds Vale-based spelling validation to enforce repository terminology.
 
----
-
 ## Changes
 
-Summarize the concrete changes in this PR:
+### Core Changes
 
-<!-- Example:
-- Added Vale vocabulary definitions under `configs/vale/`
-- Updated CI to run Vale checks on pull requests
--->
+### Test Updates
 
----
+### Removed
 
 ## Change Type (optional)
 
@@ -41,8 +36,6 @@ Select all that apply:
 - [ ] CI/CD
 - [ ] Other
 
----
-
 ## Related Issues
 
 Link any issues this PR closes or relates to:
@@ -50,7 +43,9 @@ Link any issues this PR closes or relates to:
 > Closes #123
 > Related to #456
 
----
+or No Issue found:
+> N/A
+
 
 ## Checklist
 
@@ -60,8 +55,7 @@ Please confirm the following (if applicable):
 - [ ] Tests pass (if test suite exists)
 - [ ] Documentation updated (for user-facing changes)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/)
-
----
+- [ ] Shared types and utilities are imported from common modules, not inlined in implementation files
 
 ## Additional Notes
 
