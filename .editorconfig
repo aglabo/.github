@@ -1,5 +1,5 @@
 # src: .editorconfig
-# @(#) : editorconfig for voift
+# @(#) : editorconfig template with shfmt settings
 #
 # Copyright (c) 2025- atsushifx <https://github.com/atsushifx>
 #
@@ -123,4 +123,3 @@ tab_width = 2
 # [Dockerfile]
 # indent_style = space
 # indent_size = 2
-
