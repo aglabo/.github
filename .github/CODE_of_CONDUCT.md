@@ -1,8 +1,10 @@
 # Code of Conduct
 
 <!-- textlint-disable ja-technical-writing/max-comma -->
+
 This guide helps us keep our community safe, respectful, and productive.
 It applies to all our shared spaces, like mailing lists, patches, commit comments, and more.
+
 <!-- textlint-enable -->
 
 - Be open and tolerant of different views.

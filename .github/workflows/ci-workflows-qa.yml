@@ -32,10 +32,10 @@ jobs:
     name: Actionlint
     permissions:
       contents: read
-    uses: aglabo/ci-platform/.github/workflows/ru-qa-actionlint.yml@3b3ba7602e8588aefbd08babedb8364da5b73c27 # v0.3.2
+    uses: aglabo/ci-platform/.github/workflows/ru-qa-actionlint.yml@9cc4b15bf10854ecc0fc2ea0a419d96566ea8bde # v0.3.3
 
   ghalint:
     name: Ghalint
     permissions:
       contents: read
-    uses: aglabo/ci-platform/.github/workflows/ru-qa-ghalint.yml@3b3ba7602e8588aefbd08babedb8364da5b73c27 # v0.3.2
+    uses: aglabo/ci-platform/.github/workflows/ru-qa-ghalint.yml@9cc4b15bf10854ecc0fc2ea0a419d96566ea8bde # v0.3.3
