@@ -31,6 +31,7 @@ Select all that apply:
 - [ ] Feature
 - [ ] Bug fix
 - [ ] Refactor
+- [ ] Test
 - [ ] Documentation
 - [ ] Configuration
 - [ ] CI/CD
@@ -56,6 +57,8 @@ Please confirm the following (if applicable):
 - [ ] Documentation updated (for user-facing changes)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Shared types and utilities are imported from common modules, not inlined in implementation files
+
+## Breaking Change
 
 ## Additional Notes
 
