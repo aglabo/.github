@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": ".github",
   "private": true,
+  "type": "module",
   "keywords": [
     "oss",
     "development"
