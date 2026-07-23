@@ -7,7 +7,7 @@
 // https://opensource.org/licenses/MIT
 
 // commit lint common configs
-module.exports = {
+export default {
   extends: ['@commitlint/config-conventional'],
   parserPreset: {
     parserOpts: {
