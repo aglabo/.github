@@ -45,27 +45,16 @@ $~*
 releases/*
 !releases/.keep
 
-## beads
-.beads/*
-!.beads/config.yaml
-!.beads/issues.jsonl
-.dolt/
-*.db
-.beads-credential-key
-
-##  Git
-!**/.gitignore
-
 
 ## Development tools (installed locally)
 .tools/
 
+## beads
+.beads/*
+
 ## Worktrees
 # worktree base dir
 .worktrees/
-
-## Coverage
-coverage*/
 
 ## AI generated files
 
@@ -84,6 +73,8 @@ coverage*/
 !.claude/agents/**
 !.claude/rules/
 !.claude/rules/**
+!.claude/commands/
+!.claude/commands/**
 
 # MCP server dependency files
 .cocoindex_code/
@@ -108,5 +99,8 @@ tmp/
 !.vscode/cspell*
 
 ## Node
+.pnpm-store/
 node_modules/
 
+##  Git
+!**/.gitignore
