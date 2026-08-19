@@ -21,13 +21,6 @@
     "check:dprint": "dprint check",
     "format:dprint": "dprint fmt",
 
-    "check:sh": "bash runners/run-shfmt.sh --list .",
-    "format:sh": "bash runners/run-shfmt.sh --format .",
-
-    "lint:sh": "bash runners/run-shellcheck.sh ",
-    "test:sh": "bash runners/run-shellspec.sh ",
-    "test:sh:all": "bash runners/run-shellspec.sh all",
-
     "lint:gha": "pnpm run lint:gha:action && pnpm run lint:gha:gha",
     "lint:gha:action": "pnpm exec actionlint --config-file ./configs/actionlint.yaml --color",
     "lint:gha:gha": "pnpm exec ghalint run --config ./configs/ghalint.yaml && pnpm exec ghalint run-action --config ./configs/ghalint.yaml ",
