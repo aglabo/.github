@@ -6,69 +6,73 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-
-##  General
-#   OS specific files
-.DS_Store
-thumbs.db
-
-#   logs, patches
-*.log
-*.diff
-*.patch
-
-#   history, cache
-.history/
-.cache/
-# **/*cache
+# default: ignore all files
+*
 
 
-#   backup/swap/temp
-$~*
-~*
-*~
-*.tmp
-*.swp
-*.lock
+# Allow README, LICENSE, CONTRIBUTING
+!**/README*
+!**/LICENSE*
+!**/CONTRIBUTING*
 
-# session files
-*session.json
-*session
-**/*session.json
-**/*session
+# Allow .github directories
+!.github/
+!.github/**
 
-# .env files
-.env*
-.env.*
+# Allow Templates
+!/templates/
+!/templates/**
 
-# release
-releases/*
-!releases/.keep
+# Allow other ignore
+!*ignore
+
+# Allow editorconfig
+!**/.editorconfig
+
+# Allow settings
+!**/settings.json
 
 
-## Development tools (installed locally)
-.tools/
+## Root configs
+!**/package.json
+!**/pnpm-lock.yaml
+!**/renovate.json
+!**/lefthook.yml
+!**/dprint.jsonc
+!**/.shellspec
+!**/.mcp.json
+!**/CHANGELOG.md
+!**/Release-Note.md
 
-## beads
-.beads/*
+## Project directories
+# config files
+!/configs/
+!/configs/**
+!/configs/**/*.json
+!/configs/**/*.yml
+!/configs/**/*.yaml
+!/configs/**/*.toml
+!/configs/**/*rc
+!/configs/**/*.js
+!/configs/**/*.mjs
 
-## Worktrees
-# worktree base dir
-.worktrees/
+# runners & scripts
+!/runners
+!/runners/**
+!/runners/**/*.sh
+!/scripts
+!/script/**
+!/scripts/**/*.sh
+!/scripts/**/*.ts
 
-## AI generated files
-
-## Coding AI depended
-# SDD (Spec-Driven Development) files
-
-# claude code setting
-.claude/*
-
-# settings
-!.claude/**/settings.json
-
-# agents can tracking
+## AI Agents
+# claude code
 !**/CLAUDE*.md
+
+# allowlist details: .claude/.gitignore
+!.claude/
+!**/CLAUDE*.md
+!.claude/
 !.claude/agents/
 !.claude/agents/**
 !.claude/rules/
@@ -76,31 +80,18 @@ releases/*
 !.claude/commands/
 !.claude/commands/**
 
-# MCP server dependency files
-.cocoindex_code/
-.serena/
-.lsmcp/
-.codegraph/*
-
-## Temporary directories are never tracked
-temp/
-tmp/
-**/temp/
-**/tmp/
-
 ##  Editor
 #   VSCode
-.vscode/*
+!.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 !.vscode/cspell*
+!.vscode/cspell*/**
 
-## Node
-.pnpm-store/
-node_modules/
 
 ##  Git
+# allow all gitignore
 !**/.gitignore
