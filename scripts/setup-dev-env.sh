@@ -80,6 +80,49 @@ setup_shellspec() {
 }
 
 ##
+# @description Check if an aglabo tool is already checked out
+# @arg $1 string Repository name (e.g. agla-dev-tools)
+# @arg $2 string Directory path where aglabo tools are checked out
+# @return 0 If the tool is installed
+# @return 1 If the tool is not installed
+is_agla_tool_installed() {
+  local repo="$1"
+  local tools_dir="$2"
+  [[ -d "${tools_dir}/${repo}/bin" ]]
+}
+
+##
+# @description Check out an aglabo tool repository
+# @arg $1 string Repository name (e.g. agla-dev-tools)
+# @arg $2 string Directory path where aglabo tools are checked out (default: ~/.local/tools)
+# @return 0 If installation succeeds or is skipped
+# @return 1 If installation fails
+setup_agla_tool() {
+  local repo="$1"
+  local tools_dir="${2:-${HOME}/.local/tools}"
+  local install_dir="${tools_dir}/${repo}"
+
+  if is_agla_tool_installed "$repo" "$tools_dir"; then
+    echo "$repo is already installed in $install_dir"
+    return 0
+  fi
+
+  echo "Installing $repo to $install_dir..."
+
+  mkdir -p "$tools_dir"
+
+  # Clone aglabo tool repository
+  if git clone --depth 1 "https://github.com/aglabo/${repo}.git" "$install_dir" >/dev/null 2>&1; then
+    echo "$repo installed successfully to $install_dir"
+    echo "Add to PATH: export PATH=\"$install_dir/bin:\$PATH\""
+    return 0
+  else
+    echo "Error: $repo installation failed" >&2
+    return 1
+  fi
+}
+
+##
 # @description Main entry point
 # @arg $1 string Optional shellspec installation directory (default: .tools/shellspec)
 # @return 0 If installation succeeds or is skipped
@@ -101,6 +144,12 @@ main() {
   # Install shellspec
   local shellspec_dir="${1:-.tools/shellspec}"
   setup_shellspec "$shellspec_dir"
+
+  # Install aglabo tools (non-fatal: a failure must not abort `prepare`)
+  setup_agla_tool "agla-dev-tools" || true
+  setup_agla_tool "agla-doc-tools" || true
 }
+
+${__SOURCED__:+return}
 
 main "$@"
