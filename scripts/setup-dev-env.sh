@@ -118,6 +118,9 @@ setup_agla_tool() {
     return 0
   else
     echo "Error: $repo installation failed" >&2
+    if [[ -d "$install_dir" ]]; then
+      echo "Hint: $install_dir already exists but is incomplete. Remove it and retry." >&2
+    fi
     return 1
   fi
 }
@@ -150,6 +153,9 @@ main() {
   setup_agla_tool "agla-doc-tools" || true
 }
 
-${__SOURCED__:+return}
+# Skip execution when this script is sourced
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+  return 0
+fi
 
 main "$@"
