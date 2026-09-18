@@ -23,6 +23,10 @@
 !/templates/
 !/templates/**
 
+# Allow profile (organization README)
+!/profile/
+!/profile/**
+
 # Allow other ignore
 !*ignore
 
@@ -61,7 +65,7 @@
 !/runners/**
 !/runners/**/*.sh
 !/scripts
-!/script/**
+!/scripts/**
 !/scripts/**/*.sh
 !/scripts/**/*.ts
 
