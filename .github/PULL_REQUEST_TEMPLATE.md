@@ -24,6 +24,8 @@ Briefly explain why this change is needed and any relevant context.
 
 ### Removed
 
+### Documentation
+
 ## Change Type (optional)
 
 Select all that apply:
