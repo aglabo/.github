@@ -14,21 +14,17 @@ This means enforcing quality through automation rather than documentation.
 
 ### Automation Over Documentation
 
-<!-- textlint-disable ja-technical-writing/sentence-length -->
-
-- **Configuration as Truth** - All rules live in config files, eliminating extensive documentation needs
-- **Automate Everything** - Formatters, linters, and Git hooks prevent issues before they occur
-- **AI-Powered Workflow** - Commit messages, documentation, and code reviews are AI-assisted
-- **Zero Manual Checks** - Two-layer defense with local hooks and CI/CD pipelines
-
-<!-- textlint-enable -->
+- Configuration as Truth: All rules live in config files, eliminating extensive documentation needs
+- Automate Everything: Formatters, linters, and Git hooks prevent issues before they occur
+- AI-Powered Workflow: Commit messages, documentation, and code reviews are AI-assisted
+- Zero Manual Checks: Two-layer defense with local hooks and CI/CD pipelines
 
 ### Development Principles
 
-1. **Quality Through Automation** - Tools enforce standards consistently
-2. **Developer Experience First** - Reduce cognitive load through intelligent defaults
-3. **Security by Design** - Secret detection and vulnerability scanning built-in
-4. **Continuous Improvement** - AI-driven insights for code quality and performance
+1. Quality Through Automation: Tools enforce standards consistently
+2. Developer Experience First: Reduce cognitive load through intelligent defaults
+3. Security by Design: Secret detection and vulnerability scanning built-in
+4. Continuous Improvement: AI-driven insights for code quality and performance
 
 ## Key Projects
 
@@ -38,13 +34,13 @@ Our flagship repository providing common development infrastructure for all OSS 
 
 <!-- textlint-disable ja-technical-writing/max-comma -->
 
-- **Issue/PR Templates** - Standardized workflows for bug reports, feature requests, and pull requests
-- **Automated Formatting** - dprint integration for Markdown, JSON, YAML, and TOML
-- **Comprehensive Linting** - markdownlint, textlint, and cspell for document quality
-- **Security Scanning** - gitleaks and secretlint to prevent secret leaks
-- **Git Hooks Management** - lefthook for pre-commit automation
-- **Commit Enforcement** - commitlint ensuring Conventional Commits format
-- **CI/CD Workflows** - GitHub Actions for continuous quality assurance
+- Issue/PR Templates: Standardized workflows for bug reports, feature requests, and pull requests
+- Automated Formatting: dprint integration for Markdown, JSON, YAML, and TOML
+- Comprehensive Linting: markdownlint, textlint, and cspell for document quality
+- Security Scanning: gitleaks and secretlint to prevent secret leaks
+- Git Hooks Management: lefthook for pre-commit automation
+- Commit Enforcement: commitlint ensuring Conventional Commits format
+- CI/CD Workflows: GitHub Actions for continuous quality assurance
 
 <!-- textlint-enable -->
 
