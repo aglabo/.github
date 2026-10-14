@@ -99,3 +99,42 @@
 ##  Git
 # allow all gitignore
 !**/.gitignore
+
+## Deny rules (keep last)
+# default deny rules
+
+#   OS specific files
+.DS_Store
+thumbs.db
+
+#   logs, patches
+**/*.log
+**/*.diff
+**/*.patch
+
+#   history, cache
+**/.history/
+**/.cache/
+
+#   backup/swap/temp
+**/$~*
+**/~*
+**/*~
+**/*.tmp
+**/*.swp
+**/*.lock
+
+#   session files
+**/*session.json
+**/*session
+
+#   .env files
+**/.env*
+
+#   temporary directories
+**/temp/
+**/tmp/
+
+#   node
+**/node_modules/
+**/.pnpm-store/
