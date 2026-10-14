@@ -18,7 +18,8 @@
     "prepare": "bash ./scripts/setup-dev-env.sh",
     "scan:secrets": "concurrently \"betterleaks protect --config ./configs/betterleaks.toml\" \"secretlint --secretlintrc ./configs/secretlint.config.yaml .\"",
 
-    "check:dprint": "dprint check",
+    "check:dprint": "dprint check --list-different",
+    "check:dprint:diff": "dprint check",
     "format:dprint": "dprint fmt",
 
     "lint:gha": "pnpm run lint:gha:action && pnpm run lint:gha:gha",

@@ -16,6 +16,8 @@ Briefly explain why this change is needed and any relevant context.
 
 > Example Summary: Adds Vale-based spelling validation to enforce repository terminology.
 
+## Review Order
+
 ## Changes
 
 ### Core Changes
