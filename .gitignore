@@ -9,7 +9,7 @@
 # default: ignore all files
 *
 
-
+## General
 # Allow README, LICENSE, CONTRIBUTING
 !**/README*
 !**/LICENSE*
@@ -18,10 +18,6 @@
 # Allow .github directories
 !.github/
 !.github/**
-
-# Allow Templates
-!/templates/
-!/templates/**
 
 # Allow profile (organization README)
 !/profile/
@@ -45,20 +41,20 @@
 !**/dprint.jsonc
 !**/.shellspec
 !**/.mcp.json
-!**/CHANGELOG.md
-!**/Release-Note.md
+!**/CHANGELOG.*
+!**/Release-Note.*
 
 ## Project directories
 # config files
-!/configs/
-!/configs/**
-!/configs/**/*.json
-!/configs/**/*.yml
-!/configs/**/*.yaml
-!/configs/**/*.toml
-!/configs/**/*rc
-!/configs/**/*.js
-!/configs/**/*.mjs
+!configs/
+!configs/**
+!configs/**/*.json
+!configs/**/*.yml
+!configs/**/*.yaml
+!configs/**/*.toml
+!configs/**/*rc
+!configs/**/*.js
+!configs/**/*.mjs
 
 # runners & scripts
 !/runners
@@ -70,6 +66,9 @@
 !/scripts/**/*.ts
 
 ## AI Agents
+# General
+!**/AGENT.md
+
 # claude code
 !**/CLAUDE*.md
 
@@ -99,6 +98,7 @@
 ##  Git
 # allow all gitignore
 !**/.gitignore
+
 
 ## Deny rules (keep last)
 # default deny rules
@@ -130,10 +130,11 @@ thumbs.db
 
 #   .env files
 **/.env*
+!.env.example
 
 #   temporary directories
-**/temp/
-**/tmp/
+**/temp
+**/tmp
 
 #   node
 **/node_modules/
