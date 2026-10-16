@@ -22,19 +22,13 @@ set -euo pipefail
 # @arg $@ Arguments forwarded to jactionlint
 # @exitcode Exit code of jactionlint
 main() {
-  local configDir
-  configDir="$(resolve_global_configdir)"
   local configFile
-
-  if [[ -z "$configDir" ]]; then
-    configFile="${PROJECT_ROOT}/configs/jactionlint.yaml"
-  else
-    configFile="${configDir}/jactionlint/jactionlint.yaml"
-  fi
+  configFile="$(resolve_config_file 'jactionlint/jactionlint.yaml' 'configs/jactionlint.yaml')" || return 1
 
   jactionlint --config-file "$configFile" "$@"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   main "$@"
+  exit $?
 fi

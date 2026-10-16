@@ -22,7 +22,7 @@ set -euo pipefail
 # @arg $1 string Subcommand: run (workflows) or act (actions)
 # @arg $@ string Remaining arguments forwarded to ghalint
 # @exitcode 0 All checks passed
-# @exitcode 1 Lint error or invalid subcommand
+# @exitcode 1 Lint error, invalid subcommand, or missing config file
 main() {
   local subcommand="${1:-}"
 
@@ -32,25 +32,18 @@ main() {
     ;;
   *)
     echo "Usage: run-ghalint.sh <run|act> [args...]" >&2
-    exit 1
+    return 1
     ;;
   esac
 
   local -a args=("$@")
-  local configDir
   local configFile
-
-  configDir="$(resolve_global_configdir)"
-
-  if [[ -z "$configDir" ]]; then
-    configFile="${PROJECT_ROOT}/configs/ghalint.yaml"
-  else
-    configFile="${configDir}/linters/ghalint/ghalint.yaml"
-  fi
+  configFile="$(resolve_config_file 'linters/ghalint/ghalint.yaml' 'configs/ghalint.yaml')" || return 1
 
   pnpm exec ghalint "$subcommand" --config "$configFile" "${args[@]+"${args[@]}"}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   main "$@"
+  exit $?
 fi

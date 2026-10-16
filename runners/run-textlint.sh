@@ -21,23 +21,16 @@ set -euo pipefail
 #              or with the checked-in config when the global one is absent
 # @arg $@ string Paths to lint
 # @exitcode 0 All checks passed
-# @exitcode 1 Lint error
+# @exitcode 1 Lint error or missing config file
 main() {
   local -a targets=("$@")
-  local configDir
   local configFile
-
-  configDir="$(resolve_global_configdir)"
-
-  if [[ -z "$configDir" ]]; then
-    configFile="${PROJECT_ROOT}/configs/textlintrc.yaml"
-  else
-    configFile="${configDir}/linters/textlint/textlintrc.yaml"
-  fi
+  configFile="$(resolve_config_file 'linters/textlint/textlintrc.yaml' 'configs/textlintrc.yaml')" || return 1
 
   textlint --config "$configFile" --cache --cache-location .cache/textlint/textlintcache "${targets[@]+"${targets[@]}"}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   main "$@"
+  exit $?
 fi
