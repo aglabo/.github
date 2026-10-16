@@ -26,7 +26,7 @@ tab_width = 2
 [**/node_modules/*]
 ignore = true
 
-[.tools/*]
+[**/.tools/*]
 ignore = true
 
 [.local/*]

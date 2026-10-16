@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# init-vars.lib.sh — common runner variable initialization library
+# init-vars.lib.sh - common runner variable initialization library
 # Provides SCRIPT_ROOT and PROJECT_ROOT for all runner scripts
 #
 # Copyright (c) 2026- atsushifx <https://github.com/atsushifx>

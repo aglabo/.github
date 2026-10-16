@@ -31,7 +31,7 @@
 #   - Context-aware message generation
 #   - Dual output modes: stdout or file output
 #   - Skips if existing message detected (hook mode)
-#   - Safe failure: markers not found → error exit
+#   - Safe failure: markers not found -> error exit
 #
 # @example
 #   # Output to stdout (interactive)
@@ -250,9 +250,9 @@ make_context_block() {
 # - Supports piped stdin: ... | "${AI_COMMAND[@]}"
 #
 # **Supported Providers:**
-# - OpenAI (gpt-*, o1-*) → codex exec -s read-only --color never --model <model>
-# - Anthropic (claude-*, haiku, sonnet, opus) → claude -p --model <model>
-# - OpenCode (org/model) → opencode run --model <model>
+# - OpenAI (gpt-*, o1-*) -> codex exec -s read-only --color never --model <model>
+# - Anthropic (claude-*, haiku, sonnet, opus) -> claude -p --model <model>
+# - OpenCode (org/model) -> opencode run --model <model>
 #
 # **Safety Notes:**
 # - Uses array expansion, NOT eval (shell injection safe)
@@ -328,7 +328,7 @@ get_model_command() {
 #     ```
 #
 # Execution flow:
-#   Template + Context → AI → Try Markers → Fallback to Code Block → Return
+#   Template + Context -> AI -> Try Markers -> Fallback to Code Block -> Return
 #
 # @arg $1 string Optional test message (for testing/debugging only)
 # @return 0 If generation and validation succeeds
