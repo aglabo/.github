@@ -26,7 +26,7 @@ so each repository can use the same rules with less setup.
 ## Upgrade
 
 1. Install pnpm 12 or later.
-2. Run `scripts/setup-dev-env.sh`.
+2. Run `bash scripts/setup-dev-env.sh`.
 3. Run `lefthook install` to update git hooks.
 
 See [ChangeLog.md](ChangeLog.md) for the full list of changes.
