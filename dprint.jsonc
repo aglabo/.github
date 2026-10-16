@@ -14,19 +14,18 @@
   "newLineKind": "lf",
   // Include/Exclude patterns
   "includes": [
-    // Programming Languages
+    // Programming languages
     "**/*.js",
     "**/*.ts",
-    // Configurations
+    // Config files
     "**/*.json",
     "**/*.jsonc",
     "**/*.yml",
     "**/*.yaml",
     "**/*.toml",
-    // Other Configurations
-
     // Documents
     "**/*.md",
+    "**/*.mdx",
   ],
   "excludes": [
     "**/node_modules/**",
@@ -37,8 +36,8 @@
     //
     "**lock.*",
     // Documents
-    "CONTRIBUTING**.md",
-    "CODE_OF_CONDUCT**.md",
+    "CONTRIBUTING*.md",
+    "CODE_OF_CONDUCT*.md",
   ],
   // Plugins
   "plugins": [
@@ -60,9 +59,11 @@
   },
   "json": {},
   "markdown": {
+    "associations": [
+      "**/*.md",
+      "**/*.mdx",
+    ],
     "emphasisKind": "asterisks",
   },
-  "yaml": {
-    "associations": [],
-  },
+  "yaml": {},
 }
