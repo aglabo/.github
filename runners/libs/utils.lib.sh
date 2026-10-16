@@ -30,3 +30,37 @@ resolve_global_configdir() {
     echo ""
   fi
 }
+
+#
+# @description Resolve a tool config file.
+#              Use the file under the global config directory when it exists,
+#              otherwise use the local config file in the project when it exists
+# @arg $1 string Config file path relative to the global config directory
+# @arg $2 string Local config file path relative to PROJECT_ROOT
+# @stdout Path to the config file
+# @stderr Error message listing the searched paths when no file is found
+# @exitcode 0 Config file found
+# @exitcode 1 Config file not found
+#
+resolve_config_file() {
+  local __global_relpath="$1"
+  local __local_config="${PROJECT_ROOT}/$2"
+  local __configdir
+  __configdir="$(resolve_global_configdir)"
+
+  if [[ -n "$__configdir" && -f "${__configdir}/${__global_relpath}" ]]; then
+    echo "${__configdir}/${__global_relpath}"
+    return 0
+  fi
+  if [[ -f "$__local_config" ]]; then
+    echo "$__local_config"
+    return 0
+  fi
+
+  {
+    echo "Error: config file not found. Searched:"
+    echo "  ${__configdir:-\$XDG_CONFIG_HOME (not found)}/${__global_relpath}"
+    echo "  ${__local_config}"
+  } >&2
+  return 1
+}
