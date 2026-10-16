@@ -2,18 +2,19 @@
 
 ## プロジェクト
 
-共有開発インフラ - 自動化による OSS 品質保証:
+aglabo の共有開発インフラ - 自動化による OSS 品質保証:
 
-This repository provides shared development infrastructure for OSS projects.
+This repository provides shared development infrastructure for aglabo OSS projects.
 It enforces consistency through automation rather than documentation.
+
+- Lint configs are shared from a global config directory and run through `runners/`.
+- CI uses shared reusable workflows from [aglabo/ci-platform](https://github.com/aglabo/ci-platform).
+- Organization-wide GitHub files: issue/PR templates, labels, community guidelines, and `profile/README.md`.
 
 ## 技術スタック
 
-<!-- textlint-disable ja-technical-writing/max-comma -->
-
-lefthook, dprint, gitleaks, secretlint,commitlint, markdownlint-cli2, textlint, cspell
-
-<!-- textlint-enable -->
+lefthook, dprint, betterleaks, secretlint, commitlint, markdownlint-cli2, textlint, cspell,
+actionlint (jactionlint), ghalint, pnpm 12
 
 ## コア原則
 
@@ -24,18 +25,31 @@ lefthook, dprint, gitleaks, secretlint,commitlint, markdownlint-cli2, textlint, 
 
 ## 禁止事項
 
-- Never bypass pre-commit hooks (--no-verify)
-- Never commit secrets (gitleaks will block)
+- Never bypass pre-commit hooks (`--no-verify`)
+- Never commit secrets (betterleaks and secretlint will block)
 - Never manually format code (dprint handles it)
-- Always follow Conventional Commits format
+- Always follow Conventional Commits format (header max 76 chars)
 
 ## 重要コマンド
 
 ```bash
-lefthook install        # Install git hooks
-dprint fmt              # Format all code
-git commit              # Commit with AI-generated message
+pnpm install              # Install deps and run scripts/setup-dev-env.sh (prepare)
+lefthook install          # Install git hooks
+pnpm run format:dprint    # Format all files
+pnpm run check:dprint     # Check formatting
+pnpm run lint:markdown    # markdownlint  (runners/run-markdownlint.sh)
+pnpm run lint:text        # textlint      (runners/run-textlint.sh)
+pnpm run lint:gha         # actionlint + ghalint
+pnpm run lint:spells      # cspell
+pnpm run scan:secrets     # betterleaks + secretlint
+git commit                # Commit with AI-generated message
 ```
+
+## Git Hooks (lefthook)
+
+- **pre-commit**: betterleaks, secretlint
+- **prepare-commit-msg**: `scripts/prepare-commit-msg.sh` generates the message with AI
+- **commit-msg**: commitlint
 
 ## Commit Types
 
@@ -54,27 +68,51 @@ git commit              # Commit with AI-generated message
 
 - `config`: Configuration changes
 - `release`: Release commits
-- `merge`: Merge commits
+- `merge`: Merge commits (e.g. `merge (#55): config(repo): ...`)
 - `build`: Build system changes
 - `style`: Code style changes
 - `deps`: Dependency updates
 
+## Lint Runners
+
+`runners/run-*.sh` find the config file with `resolve_config_file` (`runners/libs/utils.lib.sh`).
+They look in the global config directory (`$XDG_CONFIG_HOME` or `~/.config`) first,
+then fall back to the file in `configs/`.
+
+| Runner                        | Global config                                  | Local fallback                    |
+| ----------------------------- | ---------------------------------------------- | --------------------------------- |
+| `runners/run-markdownlint.sh` | `linters/markdownlint/.markdownlint-cli2.yaml` | `configs/.markdownlint-cli2.yaml` |
+| `runners/run-textlint.sh`     | `linters/textlint/textlintrc.yaml`             | `configs/textlintrc.yaml`         |
+| `runners/run-actionlint.sh`   | `jactionlint/jactionlint.yaml`                 | `configs/jactionlint.yaml`        |
+| `runners/run-ghalint.sh`      | `linters/ghalint/ghalint.yaml`                 | `configs/ghalint.yaml`            |
+
+Note: markdownlint and textlint configs are no longer in this repository. Set them up in the global config directory.
+
 ## 設定ファイル
 
-| Category       | Tool               | Config File                                 |
-| -------------- | ------------------ | ------------------------------------------- |
-| **Formatting** | dprint             | `dprint.jsonc`                              |
-|                | EditorConfig       | `.editorconfig`                             |
-| **Linting**    | markdownlint       | `configs/.markdownlint.yaml`                |
-|                | textlint           | `configs/textlintrc.yaml`                   |
-|                | cspell             | `.vscode/cspell.json`                       |
-| **Git Hooks**  | lefthook           | `lefthook.yml`                              |
-| **Commit**     | commitlint         | `configs/commitlint.config.js`              |
-|                | prepare-commit-msg | `scripts/prepare-commit-msg.sh`             |
-| **Security**   | gitleaks           | `configs/gitleaks.toml`                     |
-|                | secretlint         | `configs/secretlint.config.yaml`            |
-| **CI/CD**      | Secret scan        | `.github/workflows/ci-secrets-scan.yml`     |
-|                | CodeQL             | `.github/workflows/codeql-actions-only.yml` |
+| Category       | Tool               | Config File                                                   |
+| -------------- | ------------------ | ------------------------------------------------------------- |
+| **Formatting** | dprint             | `dprint.jsonc`                                                |
+|                | EditorConfig       | `.editorconfig`                                               |
+| **Linting**    | cspell             | `.vscode/cspell.json`                                         |
+|                | jactionlint        | `configs/jactionlint.yaml`                                    |
+|                | ghalint            | `configs/ghalint.yaml`                                        |
+| **Git Hooks**  | lefthook           | `lefthook.yml`                                                |
+| **Commit**     | commitlint         | `configs/commitlint.config.mjs`                               |
+|                | prepare-commit-msg | `scripts/prepare-commit-msg.sh`                               |
+| **Security**   | betterleaks        | `configs/betterleaks.toml`                                    |
+|                | secretlint         | `configs/secretlint.config.yaml`                              |
+| **Setup**      | dev environment    | `scripts/setup-dev-env.sh`                                    |
+| **GitHub**     | Labels             | `.github/labels.yml`                                          |
+|                | Templates          | `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md` |
+| **CI/CD**      | Secret scan        | `.github/workflows/ci-scan-secrets.yml`                       |
+|                | Workflows QA       | `.github/workflows/ci-workflows-qa.yml`                       |
+| **Deps**       | Renovate           | `renovate.json`                                               |
+
+## リリース
+
+- Tags use the `rX.Y.Z` format (e.g. `r2.0.0`).
+- Release notes: `ChangeLog.md` (all changes) and `Release-Note.md` (highlights, breaking changes, upgrade steps).
 
 ## リポジトリ情報
 
@@ -86,14 +124,3 @@ git commit              # Commit with AI-generated message
 
 - [行動規範 (Code of Conduct)](.github/CODE_of_CONDUCT.md) - Community code of conduct
 - [セキュリティポリシー (Security Policy)](.github/SECURITY.md) - Vulnerability reporting procedures
-
-## 詳細ドキュメント (Serena Memories)
-
-プロジェクトの詳細情報は `.serena/memories/` に格納されています:
-
-- `project_overview.md` - プロジェクト詳細・目的・構成
-- `tech_stack.md` - 技術スタック詳細・ツール統合フロー
-- `code_style_and_conventions.md` - コーディング規約・命名規則
-- `suggested_commands.md` - コマンドリファレンス・日常操作
-- `task_completion_checklist.md` - タスク完了チェックリスト
-- `windows_system_utilities.md` - Windows固有のユーティリティ・コマンド
