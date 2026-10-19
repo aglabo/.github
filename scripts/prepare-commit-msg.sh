@@ -123,7 +123,7 @@ Arguments:
 Options:
   --output FILE, -o FILE      Write commit message to FILE instead of stdout
   --model MODEL               AI model name (default: gpt-6-luna)
-                              Supported: gpt-*, o1-*, claude-*, haiku, sonnet, opus
+                              Supported: gpt-*, o1-*, claude-*, haiku, sonnet, opus, fable
   -h, --help                  Show this help message
 
 Examples:
@@ -251,7 +251,7 @@ make_context_block() {
 #
 # **Supported Providers:**
 # - OpenAI (gpt-*, o1-*) -> codex exec -s read-only --color never --model <model>
-# - Anthropic (claude-*, haiku, sonnet, opus) -> claude -p --model <model>
+# - Anthropic (claude-*, haiku, sonnet, opus, fable) -> claude -p --model <model>
 # - OpenCode (org/model) -> opencode run --model <model>
 #
 # **Safety Notes:**
