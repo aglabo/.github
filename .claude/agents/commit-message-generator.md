@@ -30,10 +30,10 @@ Generate a commit message from `git diff --cached`, the single source of truth.
 
 ## Preconditions
 
-Do not generate a message unless both succeed:
+Do not generate a message unless both conditions hold:
 
 - `git rev-parse --is-inside-work-tree` succeeds
-- `git diff --cached --quiet` reports staged changes
+- `git diff --cached --quiet` exits with status 1 (staged changes exist; status 0 means nothing is staged)
 
 ## Output Format
 
@@ -55,7 +55,7 @@ type(scope): summary
 
 ## Header
 
-Conventional Commits `type(scope): summary`, in English, lowercase, imperative.
+Conventional Commits `type(scope): summary`, in English, lowercase, imperative, at most 76 characters (commitlint `header-max-length`).
 
 ### Dominant Change Surface
 
