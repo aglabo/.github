@@ -278,7 +278,7 @@ get_model_command() {
     ;;
 
   # Anthropic (Claude) models
-  claude-* | haiku | sonnet | opus)
+  claude-* | haiku | sonnet | opus | fable)
     # execute claude with no-mcp and read-only tools (mirrors codex -s read-only):
     # the staged diff is untrusted input, so the generator must not write
     AI_COMMAND=("claude" "-p" "--tools" "Read,Grep,Glob" "--strict-mcp-config" "--mcp-config" '{"mcpServers":{}}' "--model" "${model}")
