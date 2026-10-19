@@ -52,7 +52,7 @@ or No Issue found:
 
 > N/A
 
-## Checklist
+## Testing
 
 Please confirm the following (if applicable):
 
@@ -61,6 +61,19 @@ Please confirm the following (if applicable):
 - [ ] Documentation updated (for user-facing changes)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/)
 - [ ] Shared types and utilities are imported from common modules, not inlined in implementation files
+
+### Manual Verification
+
+If you performed manual verification, write `Steps:` and list the steps you ran:
+
+> Steps:
+>
+> 1. Ran `runners/run-textlint.sh` without a global config
+> 2. Confirmed it exited with code 1
+
+or No manual verification:
+
+> N/A
 
 ## Breaking Change
 
