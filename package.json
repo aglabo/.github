@@ -27,8 +27,12 @@
     "lint:text": "bash runners/run-textlint.sh ",
     "lint:markdown": "bash runners/run-markdownlint.sh "
   },
-  "packageManager": "pnpm@12.11.2",
+  "packageManager": "pnpm@12.14.0",
   "engines": {
     "pnpm": ">=12"
+  },
+  "@(#)": ".github: repository basic configuration",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^21.2.4"
   }
 }
