@@ -88,6 +88,12 @@ then fall back to the file in `configs/`.
 
 Note: markdownlint and textlint configs are no longer in this repository. Set them up in the global config directory.
 
+### global-configs submodule
+
+`global-configs/` is a git submodule of [aglabo/global-configs](https://github.com/aglabo/global-configs),
+the shared source for these configs. Run `git submodule update --init` after cloning.
+The runners do not read `global-configs/` directly; they still use the lookup order above.
+
 ## 設定ファイル
 
 | Category       | Tool               | Config File                                                   |
