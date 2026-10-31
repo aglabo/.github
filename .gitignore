@@ -10,6 +10,10 @@
 *
 
 ## General
+# Profile
+!/profile
+!/profile/*.md
+
 # Allow README, LICENSE, CONTRIBUTING
 !**/README*
 !**/LICENSE*
@@ -19,9 +23,8 @@
 !.github/
 !.github/**
 
-# Allow profile (organization README)
-!/profile/
-!/profile/**
+# Allow git settings
+!/.git*
 
 # Allow other ignore
 !*ignore
@@ -32,6 +35,9 @@
 # Allow settings
 !**/settings.json
 
+## Allow Global Configs
+# submodule path only: files inside the submodule follow its own .gitignore
+!/global-configs
 
 ## Root configs
 !**/package.json
@@ -67,7 +73,7 @@
 
 ## AI Agents
 # General
-!**/AGENT.md
+!**/AGENTS.md
 
 # claude code
 !**/CLAUDE*.md
