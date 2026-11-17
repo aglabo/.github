@@ -1,7 +1,7 @@
 # src: .gitignore
 # @(#) : main ignore settings: aglabo/.github
 #
-# Copyright (c) 2025- atsushifx <http://github.com/atsushifx>
+# Copyright (c) 2026- atsushifx <https://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
@@ -9,11 +9,12 @@
 # default: ignore all files
 *
 
-## General
-# Profile
-!/profile
-!/profile/*.md
+## Repository Specific
+# Allow Templates (for project-starter-template repo)
+!/templates/
+!/templates/**
 
+## General
 # Allow README, LICENSE, CONTRIBUTING
 !**/README*
 !**/LICENSE*
@@ -23,8 +24,9 @@
 !.github/
 !.github/**
 
-# Allow git settings
-!/.git*
+# Allow profile (organization README)
+!/profile/
+!/profile/**
 
 # Allow other ignore
 !*ignore
@@ -35,9 +37,6 @@
 # Allow settings
 !**/settings.json
 
-## Allow Global Configs
-# submodule path only: files inside the submodule follow its own .gitignore
-!/global-configs
 
 ## Root configs
 !**/package.json
@@ -71,16 +70,21 @@
 !/scripts/**/*.sh
 !/scripts/**/*.ts
 
+# Documents
+!/docs/
+!/docs/**/
+!/docs/**/*.md
+!/docs/**/*.mdx
+
+
 ## AI Agents
 # General
-!**/AGENTS.md
+!**/AGENT.md
 
 # claude code
 !**/CLAUDE*.md
 
 # allowlist details: .claude/.gitignore
-!.claude/
-!**/CLAUDE*.md
 !.claude/
 !.claude/agents/
 !.claude/agents/**
@@ -106,8 +110,10 @@
 !**/.gitignore
 
 
-## Deny rules (keep last)
-# default deny rules
+# ------------------------------------------------------------ ##
+##  Re-exclude: secrets and generated files                      ##
+##  Must stay last: these rules undo the broad allow rules above ##
+## ------------------------------------------------------------ ##
 
 #   OS specific files
 .DS_Store
@@ -128,7 +134,7 @@ thumbs.db
 **/*~
 **/*.tmp
 **/*.swp
-**/*.lock
+# **/*.lock # track *.lock
 
 #   session files
 **/*session.json
@@ -137,6 +143,16 @@ thumbs.db
 #   .env files
 **/.env*
 !.env.example
+
+
+#   API keys / credentials
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/*apikey*
+**/*api-key*
+**/*api_key*
 
 #   temporary directories
 **/temp
